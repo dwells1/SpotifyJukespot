@@ -41,4 +41,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:26.0.0-alpha1'
     compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
     compile(name: 'spotify-auth-1.0.0-beta12', ext: 'aar')
+    compile 'com.google.android.gms:play-services:11.0.4'
 }
