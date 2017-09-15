@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.jukespot.spotifyjukespot.JukeboxCreationOptions">
+
+
+    <TextView
+        android:id="@+id/subHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="21dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Set Subscriber Options" />
+    <TextView
+        android:id="@+id/jukeboxNameTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_below="@+id/subHeader"
+        android:layout_alignStart="@+id/edJukeboxName"
+        android:text="Jukebox Name:"/>
+
+    <EditText
+        android:id="@+id/edJukeboxName"
+        android:layout_width="300dp"
+        android:layout_height="35dp"
+        android:layout_below="@+id/jukeboxNameTag"
+        android:layout_alignStart="@+id/subHeader" />
+    <TextView
+        android:id="@+id/jukeboxPasswordTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_below="@+id/edJukeboxName"
+        android:layout_alignStart="@+id/edJukeboxName"
+        android:text="Jukebox Password (Optional):"/>
+
+    <EditText
+        android:id="@+id/edJukeboxPassword"
+        android:layout_width="300dp"
+        android:layout_height="35dp"
+        android:layout_below="@+id/jukeboxPasswordTag"
+        android:layout_alignStart="@+id/subHeader" />
+
+    <TextView
+        android:id="@+id/jukeboxSpinnerTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_below="@+id/edJukeboxPassword"
+        android:layout_alignStart="@+id/edJukeboxName"
+        android:text="Set Jukebox Distance Radius:"/>
+
+    <Spinner
+        android:id="@+id/spinnerDistanceOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/jukeboxSpinnerTag"
+        android:layout_alignStart="@+id/jukeboxSpinnerTag"
+        android:layout_alignEnd="@+id/jukeboxSpinnerTag" />
+
+    <TextView
+        android:id="@+id/userPermissionsTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_below="@+id/spinnerDistanceOptions"
+        android:layout_alignStart="@+id/edJukeboxName"
+        android:text="Subscriber Permissions:"/>
+
+    <CheckBox
+        android:id="@+id/chkEditQueue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_below="@+id/userPermissionsTag"
+        android:layout_alignStart="@+id/userPermissionsTag"
+        android:layout_marginStart="25dp"
+        android:text="Allow Subscribers to Edit Queue"/>
+    <CheckBox
+        android:id="@+id/chkPlayAutomatic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_below="@+id/chkEditQueue"
+        android:layout_alignStart="@+id/userPermissionsTag"
+        android:layout_marginStart="25dp"
+        android:text="Allow Subscribers to Play Songs Automatically"/>
+
+    <Button
+        android:id="@+id/btnStartJukebox"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp"
+        android:onClick="onStartJukeboxClicked"
+        android:clickable="true"
+        android:text="Start Jukebox" />
+
+</RelativeLayout>
