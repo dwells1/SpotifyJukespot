@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +34,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
+
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
     private FusedLocationProviderClient mFusedLocationClient;
@@ -55,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         currentActivityTitle = getTitle().toString();
         addItemsToDrawerMenu();
         setupDrawerMenu();
+        setFirstFragment();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     public void addItemsToDrawerMenu() {
         mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
+
         menuAdaptor = new ArrayAdapter<String>(this,
                 R.layout.drawer_options_list_layout, mainUserOptionsForDrawer);
 
@@ -100,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         });
     }
+    /*TODO: add detection so user cannot press same item twice and just reload*/
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
 
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
 
     }
+
     public void setupDrawerMenu(){
         menuDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.navigation_drawer_open,R.string.navigation_drawer_close){
@@ -145,6 +152,23 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         menuDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.addDrawerListener(menuDrawerToggle);
     }
+
+    public void setFirstFragment(){
+        Fragment currentFrag = new SearchFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragTransaction = null;
+        try {
+            fragTransaction = fragmentManager.beginTransaction();
+            fragTransaction.replace(R.id.content_frame, currentFrag);
+            fragTransaction.commit();
+        }catch(Exception FragNotFound){
+            FragNotFound.printStackTrace();
+        }
+
+        currentActivityTitle = "Search";
+        setTitle(currentActivityTitle);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -164,6 +188,19 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if((keyCode == KeyEvent.KEYCODE_BACK)){
+            if(mDrawerLayout.isDrawerOpen(GravityCompat.START)){
+                mDrawerLayout.closeDrawer(mDrawerList);
+                return true;
+            }else {
+                mDrawerLayout.openDrawer(mDrawerList);
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     protected void createLocationRequest() {
