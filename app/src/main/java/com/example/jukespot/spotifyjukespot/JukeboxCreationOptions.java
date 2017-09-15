@@ -54,7 +54,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         finish();
     }
 
-    /*TODO: Maybe add something that tells the user what thing do?*/
+    /*TODO: Maybe add something that tells the user what things do?*/
 
 
 }

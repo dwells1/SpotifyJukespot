@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 currentSelectionFromMenuTitle = ((TextView) view.findViewById(R.id.itemChosen)).getText().toString();
-                Toast.makeText(MainActivity.this, currentSelectionFromMenuTitle, Toast.LENGTH_SHORT).show();
+               // Toast.makeText(MainActivity.this, currentSelectionFromMenuTitle, Toast.LENGTH_SHORT).show();
                 selectMenuItem(position);
             }
         });
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     /*TODO: add detection so user cannot press same item twice and just reload*/
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
+        boolean isFragmentNeeded = true;
 
         /*TODO: Create Fragments for other menu options except maybe logout*/
         if(currentSelectionFromMenuTitle.equals("Search")){
@@ -120,19 +121,32 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
         }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
             currentFrag = new CurrentQueueFragment();
+        }else if(currentSelectionFromMenuTitle.equals("End Current Jukebox")){
+            /*TODO: Add Alert so user confirms ending jukebox*/
+            Toast.makeText(this,"Jukebox Ended",Toast.LENGTH_SHORT).show();
+            Intent jukeboxOptionsIntent = new Intent(this, JukeboxUserOptions.class);
+            startActivity(jukeboxOptionsIntent);
+            finish();
+        }else if(currentSelectionFromMenuTitle.equals("Logout")){
+            /*TODO: Should this log them out of spotify??*/
+            Toast.makeText(this,"Logout Successfull",Toast.LENGTH_SHORT).show();
+            Intent jukeboxLoginIntent = new Intent(this, Login.class);
+            startActivity(jukeboxLoginIntent);
+            finish();
         }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragTransaction = null;
-        try {
-            fragTransaction = fragmentManager.beginTransaction();
-            fragTransaction.replace(R.id.content_frame, currentFrag);
-            fragTransaction.commit();
-        }catch(Exception FragNotFound){
-            FragNotFound.printStackTrace();
+        if(currentFrag != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragTransaction = null;
+            try {
+                fragTransaction = fragmentManager.beginTransaction();
+                fragTransaction.replace(R.id.content_frame, currentFrag);
+                fragTransaction.commit();
+            } catch (Exception FragNotFound) {
+                FragNotFound.printStackTrace();
+            }
+            currentActivityTitle = currentSelectionFromMenuTitle;
+            mDrawerLayout.closeDrawer(mDrawerList);
         }
-
-        currentActivityTitle = currentSelectionFromMenuTitle;
-        mDrawerLayout.closeDrawer(mDrawerList);
 
 
     }
