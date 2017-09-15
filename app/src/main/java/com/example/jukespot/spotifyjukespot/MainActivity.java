@@ -2,7 +2,9 @@ package com.example.jukespot.spotifyjukespot;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+/**TODO:WHEN MAKING A NEW FRAGMENT MAKE SURE THIS VERSION OF FRAGMENT IS IMPORTED IN THAT FILE**/
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -30,8 +32,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
-
-public class MainActivity extends AppCompatActivity {
+/*TODO: When Adding new Fragments you have to implement them as the ones here*/
+public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
     private FusedLocationProviderClient mFusedLocationClient;
     /*Drawer Navigation*/
     private ActionBarDrawerToggle menuDrawerToggle;
@@ -48,15 +50,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /*Functions for Navigable Menu*/
-       /* mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         currentActivityTitle = getTitle().toString();
         addItemsToDrawerMenu();
         setupDrawerMenu();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);*/
+        getSupportActionBar().setHomeButtonEnabled(true);
 
-
+        /*Location Stuff*/
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-    /*
+
     public void addItemsToDrawerMenu() {
         mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
@@ -99,14 +101,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     public void selectMenuItem(int position){
-        if(currentSelectionFromMenuTitle.equals("Search")){
-            Fragment currentFrag = new SearchFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
-            fragTransaction.add(R.id.content_frame,currentFrag);
-            fragTransaction.commit();
-        }
+        Fragment currentFrag = null;
 
+        /*TODO: Create Fragments for other menu options except maybe logout*/
+        if(currentSelectionFromMenuTitle.equals("Search")){
+            currentFrag = new SearchFragment();
+
+        }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
+            currentFrag = new CurrentQueueFragment();
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragTransaction = null;
+        try {
+            fragTransaction = fragmentManager.beginTransaction();
+            fragTransaction.replace(R.id.content_frame, currentFrag);
+            fragTransaction.commit();
+        }catch(Exception FragNotFound){
+            FragNotFound.printStackTrace();
+        }
 
         currentActivityTitle = currentSelectionFromMenuTitle;
         mDrawerLayout.closeDrawer(mDrawerList);
@@ -115,16 +127,16 @@ public class MainActivity extends AppCompatActivity {
     }
     public void setupDrawerMenu(){
         menuDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.navigation_drawer_open,R.string.navigation_drawer_close){ */
+                R.string.navigation_drawer_open,R.string.navigation_drawer_close){
             /** Called when a drawer has settled in a completely open state. */
-         /*   public void onDrawerOpened(View drawerView) {
+            public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 getSupportActionBar().setTitle("Navigation");
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }*/
+            }
 
             /** Called when a drawer has settled in a completely closed state. */
-          /*  public void onDrawerClosed(View view) {
+            public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
                 getSupportActionBar().setTitle(currentActivityTitle);
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
@@ -138,6 +150,11 @@ public class MainActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         menuDrawerToggle.syncState();
     }
+    /*TODO: Check what this does is it needed for loading more complex Fragments??*/
+    @Override
+    public void onFragmentInteraction(Uri uri){
+        //you can leave it empty
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
@@ -147,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }*/
+    }
 
     protected void createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();

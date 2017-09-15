@@ -8,6 +8,6 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Queue Fragment" />
+        android:text="EDIT fragment_current_queue.xml TO CHANGE THIS" />
 
 </FrameLayout>
