@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
@@ -41,6 +42,7 @@ import kaaes.spotify.webapi.android.models.Track;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
+    private static final String TAG = Login.class.getSimpleName();
     private FusedLocationProviderClient mFusedLocationClient;
     /*Drawer Navigation*/
     private ActionBarDrawerToggle menuDrawerToggle;
@@ -50,11 +52,19 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ArrayAdapter<String> menuAdaptor;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            token = extras.getString("EXTRA_TOKEN");
+            Log.d(TAG,token);
+            //The key argument here must match that used in the other activity
+        }
 
         /*Functions for Navigable Menu*/
         mDrawerList = (ListView) findViewById(R.id.left_drawer);

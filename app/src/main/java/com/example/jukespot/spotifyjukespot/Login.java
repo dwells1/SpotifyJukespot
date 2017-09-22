@@ -4,16 +4,14 @@ package com.example.jukespot.spotifyjukespot;
  * This will be the regular Login for the App itself and
  * not the Spotify Authentication even though as of now it is
  * still in there....
- * Created by nique on 9/10/2017.
  */
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +24,7 @@ public class Login extends Activity{
     EditText edUsername;
     EditText edPassword;
     private static final String TAG = Login.class.getSimpleName();
+    private Logging log;
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CLIENT_ID = "4309049aaf574f63b61d3408408a4ff2";
@@ -40,16 +39,17 @@ public class Login extends Activity{
         /*TODO: initialize EditText field for username and password and check if inputs are correct*/
         bRegLogin = (Button) findViewById(R.id.bRegLogin);
         setContentView(R.layout.activity_login);
-        /*   String token = CredentialsHandler.getToken(this);
+        String token = CredentialsHandler.getToken(this);
+        log = new Logging();
         if (token == null) {
             setContentView(R.layout.activity_login);
         } else {
             startMainActivity(token);
-        } */
+        }
     }
 
     public void onLoginButtonClicked(View view) {
-        System.out.println("login clicked");
+        log.logMessage(TAG,"login clicked");
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                 AuthenticationResponse.Type.TOKEN,REDIRECT_URI);
         builder.setScopes(new String[]{"user-read-private", "streaming"});
@@ -58,10 +58,10 @@ public class Login extends Activity{
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
     public void onRegLoginClicked(View view){
-        Log.v(TAG,"LOGIN REG PRESSED");
+        log.logMessage(TAG,"LOGIN REG PRESSED");
         /*TODO: check username and password input here*/
         /*Assume Password and Username are Correct and go to next instance*/
-        logMessage("Login Successful");
+        log.logMessage(TAG,"Login Successful");
         startJukeboxOptions();
     }
     /*TODO: Remove all mentions of original Spotify Login*/
@@ -75,26 +75,26 @@ public class Login extends Activity{
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
-                    logMessage("Got token: " + response.getAccessToken());
+                    log.logMessage(TAG,"Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
                     startMainActivity(response.getAccessToken());
                     break;
 
                 // Auth flow returned an error
                 case ERROR:
-                    logError("Auth error: " + response.getError());
+                    log.logMessage(TAG,"Auth error: " + response.getError());
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
-                    logError("Auth result: " + response.getType());
+                    log.logMessage(TAG,"Auth result: " + response.getType());
             }
         }
     }
 
     private void startMainActivity(String token) {
         Intent intent = MainActivity.createIntent(this);
-        //intent.putExtra(MainActivity.EXTRA_TOKEN, token);
+        intent.putExtra("EXTRA_TOKEN", token);
         startActivity(intent);
         finish();
     }
@@ -104,13 +104,5 @@ public class Login extends Activity{
         finish();
 
     }
-    private void logError(String msg) {
-        Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
-        Log.e(TAG, msg);
-    }
 
-    private void logMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, msg);
-    }
 }
