@@ -22,6 +22,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 public class Login extends Activity{
     Button bRegLogin;
     EditText edUsername;
+    User user;
     EditText edPassword;
     private static final String TAG = Login.class.getSimpleName();
     private Logging log;
@@ -33,11 +34,15 @@ public class Login extends Activity{
 
     private static final int REQUEST_CODE = 1337;
 
+
+
+
+    // Validate txt1String
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*TODO: initialize EditText field for username and password and check if inputs are correct*/
-        bRegLogin = (Button) findViewById(R.id.bRegLogin);
+        bRegLogin = findViewById(R.id.bRegLogin);
         setContentView(R.layout.activity_login);
         String token = CredentialsHandler.getToken(this);
         log = new Logging();
@@ -46,7 +51,12 @@ public class Login extends Activity{
         } else {
             startMainActivity(token);
         }
-    }
+        edUsername = (EditText) findViewById(R.id.edRegUsername);
+        edPassword = (EditText) findViewById(R.id.edRegPassword);
+        bRegLogin = (Button) findViewById(R.id.bRegLogin);
+
+        }
+
 
     public void onLoginButtonClicked(View view) {
         log.logMessage(TAG,"login clicked");
@@ -59,10 +69,23 @@ public class Login extends Activity{
     }
     public void onRegLoginClicked(View view){
         log.logMessage(TAG,"LOGIN REG PRESSED");
-        /*TODO: check username and password input here*/
-        /*Assume Password and Username are Correct and go to next instance*/
-        log.logMessage(TAG,"Login Successful");
-        startJukeboxOptions();
+        /*TODO: check username and password are in database*/
+        String UserName = edUsername.getText().toString();
+        String Password = edPassword.getText().toString();
+
+        if(UserName.equals("") || Password.equals("")){
+            log.logMessage(TAG,"Username or Password is empty");
+
+        }else{
+            /*Assume Password and Username are Correct and go to next instance*/
+            log.logMessage(TAG,"Login Successful");
+            user = new User(UserName, Password);
+
+            startJukeboxOptions();
+        }
+
+
+
     }
     /*TODO: Remove all mentions of original Spotify Login*/
     @Override
@@ -104,5 +127,6 @@ public class Login extends Activity{
         finish();
 
     }
+
 
 }
