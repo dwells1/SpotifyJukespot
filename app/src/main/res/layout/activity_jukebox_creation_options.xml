@@ -81,6 +81,7 @@
         android:layout_below="@+id/userPermissionsTag"
         android:layout_alignStart="@+id/userPermissionsTag"
         android:layout_marginStart="25dp"
+        android:onClick="onCheckBoxClicked"
         android:text="Allow Subscribers to Edit Queue"/>
     <CheckBox
         android:id="@+id/chkPlayAutomatic"
@@ -90,6 +91,7 @@
         android:layout_below="@+id/chkEditQueue"
         android:layout_alignStart="@+id/userPermissionsTag"
         android:layout_marginStart="25dp"
+        android:onClick="onCheckBoxClicked"
         android:text="Allow Subscribers to Play Songs Automatically"/>
 
     <Button
