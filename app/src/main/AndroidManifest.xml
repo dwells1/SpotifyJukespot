@@ -31,6 +31,7 @@
         </activity>
         <activity android:name=".JukeboxUserOptions" />
         <activity android:name=".JukeboxCreationOptions" />
+        <activity android:name=".GoogleLocActivity"></activity>
     </application>
 
 </manifest>
