@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot;
 
+import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class JukeboxCreationOptions extends AppCompatActivity {
+    private Logging log;
+
     Spinner distanceDropdownSpinner;
     CheckBox chkPlayAutomatic;
     CheckBox chkEditQueue;
@@ -29,16 +32,18 @@ public class JukeboxCreationOptions extends AppCompatActivity {
     Boolean isQueueEditable;
     Boolean isPlayAutomatic;
 
+    String accessToken;
 
 
     private static final String TAG = Login.class.getSimpleName();
+    static final String EXTRA_TOKEN = "EXTRA_TOKEN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jukebox_creation_options);
-        /*TODO: Store info from distance dropdown menu initiated here*/
-
+        Intent intent = this.getIntent();
+        accessToken = intent.getStringExtra(EXTRA_TOKEN);
         initDistanceSpinner();
         initLayoutValues();
 
@@ -99,7 +104,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
             logMessage("No name inputted");
         }else{
             Intent intent = MainActivity.createIntent(this);
-            //intent.putExtra(MainActivity.EXTRA_TOKEN, token);
+            intent.putExtra(EXTRA_TOKEN, accessToken);
             startActivity(intent);
             finish();
         }

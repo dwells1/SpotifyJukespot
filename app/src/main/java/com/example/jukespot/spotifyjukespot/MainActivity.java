@@ -42,6 +42,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
 
 import java.util.List;
 
@@ -164,8 +165,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             currentActivityTitle = currentSelectionFromMenuTitle;
             mDrawerLayout.closeDrawer(mDrawerList);
         }
-
-
     }
 
     public void setupDrawerMenu(){

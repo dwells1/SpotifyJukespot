@@ -15,6 +15,7 @@ import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
 import java.util.concurrent.TimeUnit;
 
+import com.google.firebase.database.ThrowOnExtraProperties;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -46,16 +47,16 @@ public class Login extends Activity{
         setContentView(R.layout.activity_login);
         String token = CredentialsHandler.getToken(this);
         log = new Logging();
-        if (token == null) {
+      /*  if (token == null) {
             setContentView(R.layout.activity_login);
         } else {
             startMainActivity(token);
-        }
+        }*/
         edUsername = (EditText) findViewById(R.id.edRegUsername);
         edPassword = (EditText) findViewById(R.id.edRegPassword);
         bRegLogin = (Button) findViewById(R.id.bRegLogin);
 
-        }
+    }
 
 
     public void onLoginButtonClicked(View view) {
@@ -67,6 +68,8 @@ public class Login extends Activity{
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
+
+
     public void onRegLoginClicked(View view){
         log.logMessage(TAG,"LOGIN REG PRESSED");
         /*TODO: check username and password are in database*/
@@ -74,7 +77,7 @@ public class Login extends Activity{
         String Password = edPassword.getText().toString();
 
         if(UserName.equals("") || Password.equals("")){
-            log.logMessage(TAG,"Username or Password is empty");
+            log.logMessageWithToast(this ,TAG,"Username or Password is empty");
 
         }else{
             /*Assume Password and Username are Correct and go to next instance*/

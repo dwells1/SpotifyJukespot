@@ -10,13 +10,14 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 public class JukeboxUserOptions extends Activity {
     Button btnCreateJukebox;
     Button btnJoinJukebox;
-
+    Logging log;
     private static final String TAG = Login.class.getSimpleName();
 
     @SuppressWarnings("SpellCheckingInspection")
@@ -29,7 +30,7 @@ public class JukeboxUserOptions extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        log = new Logging();
         initJukeboxButtons();
         setContentView(R.layout.activity_jukebox_user_options);
     }
@@ -39,6 +40,7 @@ public class JukeboxUserOptions extends Activity {
         btnJoinJukebox = (Button) findViewById(R.id.bJoinJukebox);
     }
     public void onStartNewJukeboxClicked(View view){
+        Log.v(TAG,"START NEW PRESSED");
         String loginToken = CredentialsHandler.getToken(this);
         if(loginToken == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -51,7 +53,7 @@ public class JukeboxUserOptions extends Activity {
             //startMainActivity(loginToken);
             startCreatorJukeboxOptions(loginToken);
         }
-        Log.v(TAG,"START NEW PRESSED");
+
     }
 
     public void onJoinJukeboxClicked(View view){
@@ -71,7 +73,7 @@ public class JukeboxUserOptions extends Activity {
                 case TOKEN:
                     logMessage("Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
-                   //startMainActivity(response.getAccessToken());
+                    //startMainActivity(response.getAccessToken());
                     startCreatorJukeboxOptions(response.getAccessToken());
                     break;
 
@@ -89,7 +91,7 @@ public class JukeboxUserOptions extends Activity {
 
     private void startMainActivity(String token) {
         Intent intent = MainActivity.createIntent(this);
-        //intent.putExtra(MainActivity.EXTRA_TOKEN, token);
+       // intent.putExtra("EXTRA_TOKEN", token);
         startActivity(intent);
         finish();
     }//end startMain
@@ -97,6 +99,7 @@ public class JukeboxUserOptions extends Activity {
     private void startCreatorJukeboxOptions(String token){
         Intent jukeboxCreatorOptionsIntent = new Intent(this,
                 JukeboxCreationOptions.class);
+        jukeboxCreatorOptionsIntent.putExtra("EXTRA_TOKEN", token);
         startActivity(jukeboxCreatorOptionsIntent);
         finish();
     }
