@@ -22,28 +22,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.ResolvableApiException;
+import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
+import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.spotify.sdk.android.authentication.AuthenticationClient;
 
-import java.util.List;
+/*music player imports*/
+import com.spotify.sdk.android.player.Config;
+
 
 import kaaes.spotify.webapi.android.models.Track;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
-public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
-    private static final String TAG = Login.class.getSimpleName();
+public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
+    Logging log = new Logging();
+
     private FusedLocationProviderClient mFusedLocationClient;
     /*Drawer Navigation*/
     private ActionBarDrawerToggle menuDrawerToggle;
@@ -53,8 +48,21 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ArrayAdapter<String> menuAdaptor;
-    private String token;
 
+    private ViewTypeFragments currentFragmentView;
+    private String token;
+    private MusicPlayer musicPlayer;
+
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String CLIENT_ID = "4309049aaf574f63b61d3408408a4ff2";
+    @SuppressWarnings("SpellCheckingInspection")
+    private static final String REDIRECT_URI = "jukebox://callback";
+
+    private static final int REQUEST_CODE = 1337;
+    /* NOTE: When Changing fragments update current viewtype
+     * and check if current view type is the same as the new viewtype
+     * implemented for search and current queue look there
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,14 +71,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("EXTRA_TOKEN");
+            initPlayer();
             Log.d(TAG,token);
             //The key argument here must match that used in the other activity
         }
 
         /*Functions for Navigable Menu*/
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        currentActivityTitle = getTitle().toString();
+        initDrawerLayout();
         addItemsToDrawerMenu();
         setupDrawerMenu();
         setFirstFragment();
@@ -81,10 +88,32 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     /*Location Stuff*/
     /** Called when the user taps the Send button */
     public void sendMessage (View view){
-        Intent intent = new Intent(this, GoogleLocActivity.class);;
+        Intent intent = new Intent(this, GoogleLocActivity.class);
         startActivity(intent);
     }
 
+    /*music player functions*/
+    public void initPlayer(){
+        Config playerConfig = new Config(this, token, CLIENT_ID);
+        musicPlayer = new MusicPlayer();
+        musicPlayer.initSpotifyPlayer(playerConfig);
+    }
+
+    public void playSong(Track toPlay){
+        log.logMessage(TAG, "play song is called! for toPlay = " + toPlay.name);
+        musicPlayer.play(toPlay.uri);
+    }
+
+    public void queueSong(Track toQueue){
+        log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
+        musicPlayer.queue(toQueue.uri);
+    }
+
+    public void initDrawerLayout(){
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        currentActivityTitle = getTitle().toString();
+    }
     public void addItemsToDrawerMenu() {
         mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
@@ -102,26 +131,37 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         });
     }
-    /*TODO: add detection so user cannot press same item twice and just reload*/
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
         boolean isFragmentNeeded = true;
 
-        /*TODO: Create Fragments for other menu options except maybe logout*/
+        /*TODO: Create Fragments for Current Queue, and Currently Playing*/
         if(currentSelectionFromMenuTitle.equals("Search")){
-            currentFrag = new SearchFragment();
+            if(currentFragmentView != ViewTypeFragments.SEARCH_VIEW){
+                currentFrag = new SearchFragment();
+                updateCurrentViewType(ViewTypeFragments.SEARCH_VIEW);
+            }else{
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
 
         }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
-            currentFrag = new CurrentQueueFragment();
+            if(currentFragmentView != ViewTypeFragments.CURRENT_QUEUE){
+                currentFrag = new CurrentQueueFragment();
+                updateCurrentViewType(ViewTypeFragments.CURRENT_QUEUE);
+            }else{
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
         }else if(currentSelectionFromMenuTitle.equals("End Current Jukebox")){
             /*TODO: Add Alert so user confirms ending jukebox*/
             Toast.makeText(this,"Jukebox Ended",Toast.LENGTH_SHORT).show();
+            musicPlayer.endCurrentPlayer();
             Intent jukeboxOptionsIntent = new Intent(this, JukeboxUserOptions.class);
             startActivity(jukeboxOptionsIntent);
             finish();
         }else if(currentSelectionFromMenuTitle.equals("Logout")){
             /*TODO: Should this log them out of spotify??*/
-            Toast.makeText(this,"Logout Successfull",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Logout Successful",Toast.LENGTH_SHORT).show();
+            musicPlayer.endCurrentPlayer();
             Intent jukeboxLoginIntent = new Intent(this, Login.class);
             startActivity(jukeboxLoginIntent);
             finish();
@@ -174,10 +214,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }catch(Exception FragNotFound){
             FragNotFound.printStackTrace();
         }
-
+        updateCurrentViewType(ViewTypeFragments.SEARCH_VIEW);
         currentActivityTitle = "Search";
         setTitle(currentActivityTitle);
         mDrawerLayout.closeDrawer(mDrawerList);
+
     }
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -192,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        int itemID = item.getItemId();
+       // int itemID = item.getItemId();
 
         if (menuDrawerToggle.onOptionsItemSelected(item)) {
             return true;
@@ -216,4 +257,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     public static Intent createIntent(Context context) {
         return new Intent(context, MainActivity.class);
     }
+
+    public void updateCurrentViewType(ViewTypeFragments current){
+        currentFragmentView = current;
+    }
+
 }

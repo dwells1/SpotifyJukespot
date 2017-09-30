@@ -32,6 +32,8 @@
         <activity android:name=".JukeboxUserOptions" />
         <activity android:name=".JukeboxCreationOptions" />
         <activity android:name=".GoogleLocActivity"></activity>
+
+        <service android:name=".MusicPlayer.MusicPlayerService"/>
     </application>
 
 </manifest>

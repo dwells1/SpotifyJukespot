@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Search;
 
 /**
  * Created by nique on 9/19/2017.

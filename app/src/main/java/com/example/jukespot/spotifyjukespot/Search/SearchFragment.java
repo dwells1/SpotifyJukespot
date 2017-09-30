@@ -1,23 +1,26 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Search;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.widget.TextView;
 
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.MainActivity;
+import com.example.jukespot.spotifyjukespot.R;
+import com.example.jukespot.spotifyjukespot.ResultListScrollListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -47,6 +50,13 @@ public class SearchFragment extends Fragment implements Search.View{
 
     private LinearLayoutManager mLayoutManager = new LinearLayoutManager(this.getActivity());
     private ScrollListener mScrollListener = new ScrollListener(mLayoutManager);
+
+
+    private PopupMenu songPopUp;
+    /*song pressed info*/
+    private Track trackChosenInSearch;
+    private String trackName;
+    private String trackArtist;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -105,6 +115,7 @@ public class SearchFragment extends Fragment implements Search.View{
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
+           // log.logMessage(TAG,"Pressed SONG");
         }
     }
 
@@ -136,6 +147,14 @@ public class SearchFragment extends Fragment implements Search.View{
             @Override
             public void onItemSelected(View itemView, Track item) {
                 mActionListener.selectTrack(item);
+                /*set song variables name, artist, and song itself*/
+                TextView songTitleView = (TextView) itemView.findViewById(R.id.entity_title);
+                TextView artistView = (TextView) itemView.findViewById(R.id.entity_subtitle);
+                trackChosenInSearch = item;
+                trackArtist = artistView.getText().toString();
+                trackName = songTitleView.getText().toString();
+                log.logMessage(TAG,"Pressed Song From Search: " + trackName +" by "+ trackArtist);
+                showPopUp(itemView);
             }
         });
 
@@ -151,6 +170,31 @@ public class SearchFragment extends Fragment implements Search.View{
             mActionListener.search(currentQuery);
         }
 
+    }
+    public void showPopUp(View anchor){
+        songPopUp = new PopupMenu(this.getActivity(), anchor);
+        songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
+        songPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                String itemChosen = item.getTitle().toString();
+                switch(itemChosen){
+                    case "Add to Queue":
+                        ((MainActivity)getActivity()).queueSong(trackChosenInSearch);
+                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
+                        break;
+                    case "Play Now":
+                        ((MainActivity)getActivity()).playSong(trackChosenInSearch);
+                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
+                        break;
+                    default:
+                        break;
+
+                }
+                return true;
+            }
+        });
+        songPopUp.show();
     }
 
     @Override

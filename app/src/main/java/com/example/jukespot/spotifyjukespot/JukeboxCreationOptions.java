@@ -1,7 +1,8 @@
 package com.example.jukespot.spotifyjukespot;
 
+import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import android.content.Context;
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,7 +36,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
     String accessToken;
 
 
-    private static final String TAG = Login.class.getSimpleName();
+    private static final String TAG = JukeboxCreationOptions.class.getSimpleName();
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
 
     @Override

@@ -51,15 +51,6 @@
         android:layout_below="@+id/edRememberCheckBox"
         android:layout_toEndOf="@+id/textView"
         android:layout_marginTop="22dp" />
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onLoginButtonClicked"
-        android:text="@string/login_button"
-        android:layout_marginBottom="62dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
 
     <CheckBox
         android:id="@+id/edRememberCheckBox"
@@ -68,6 +59,18 @@
         android:text="Remember Me"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:id="@+id/newMemberText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Not a Member? Sign up Now!"
+        android:textColor="@color/wallet_holo_blue_light"
+        android:layout_below="@+id/bRegLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:clickable="true"
+        android:onClick="onNewMemberClicked"/>
 
 
 </RelativeLayout>

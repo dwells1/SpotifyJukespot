@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Search;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.jukespot.spotifyjukespot.R;
 import com.google.common.base.Joiner;
 import com.squareup.picasso.Picasso;
 

@@ -15,10 +15,10 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 public class JukeboxUserOptions extends Activity {
-    Button btnCreateJukebox;
-    Button btnJoinJukebox;
+    private Button btnCreateJukebox;
+    private Button btnJoinJukebox;
     Logging log;
-    private static final String TAG = Login.class.getSimpleName();
+    private static final String TAG = JukeboxUserOptions.class.getSimpleName();
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CLIENT_ID = "4309049aaf574f63b61d3408408a4ff2";
@@ -39,13 +39,21 @@ public class JukeboxUserOptions extends Activity {
         btnCreateJukebox = (Button) findViewById(R.id.bStartJukebox);
         btnJoinJukebox = (Button) findViewById(R.id.bJoinJukebox);
     }
+
     public void onStartNewJukeboxClicked(View view){
-        Log.v(TAG,"START NEW PRESSED");
+        log.logMessage(TAG,"START NEW PRESSED");
         String loginToken = CredentialsHandler.getToken(this);
         if(loginToken == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
                     AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-            builder.setScopes(new String[]{"user-read-private", "streaming"});
+
+            /**
+             * TODO: check scopes necessary at : https://developer.spotify.com/web-api/using-scopes/
+             */
+            builder.setScopes(new String[]{
+                    "user-read-private",
+                    "streaming",
+                    "user-read-currently-playing"});
             AuthenticationRequest request = builder.build();
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
@@ -58,7 +66,7 @@ public class JukeboxUserOptions extends Activity {
 
     public void onJoinJukeboxClicked(View view){
         /*TODO: add functionality for joining a jukebox button at the moment it does nothing*/
-        Log.v(TAG,"JOIN JUKE PRESSED");
+        log.logMessage(TAG,"JOIN JUKE PRESSED");
     }// end onJoinJukeboxClicked
 
     @Override
@@ -71,30 +79,22 @@ public class JukeboxUserOptions extends Activity {
             switch (response.getType()) {
                 // Response was successful and contains auth token
                 case TOKEN:
-                    logMessage("Got token: " + response.getAccessToken());
+                    log.logMessageWithToast(this,TAG,"Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
-                    //startMainActivity(response.getAccessToken());
                     startCreatorJukeboxOptions(response.getAccessToken());
                     break;
 
                 // Auth flow returned an error
                 case ERROR:
-                    logError("Auth error: " + response.getError());
+                    log.logError(this,TAG,"Auth error: " + response.getError());
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
-                    logError("Auth result: " + response.getType());
+                    log.logError(this,TAG,"Auth result: " + response.getType());
             }
         }
     } //end onActivity
-
-    private void startMainActivity(String token) {
-        Intent intent = MainActivity.createIntent(this);
-       // intent.putExtra("EXTRA_TOKEN", token);
-        startActivity(intent);
-        finish();
-    }//end startMain
 
     private void startCreatorJukeboxOptions(String token){
         Intent jukeboxCreatorOptionsIntent = new Intent(this,
@@ -102,15 +102,6 @@ public class JukeboxUserOptions extends Activity {
         jukeboxCreatorOptionsIntent.putExtra("EXTRA_TOKEN", token);
         startActivity(jukeboxCreatorOptionsIntent);
         finish();
-    }
-    private void logError(String msg) {
-        Toast.makeText(this, "Error: " + msg, Toast.LENGTH_SHORT).show();
-        Log.e(TAG, msg);
-    }
-
-    private void logMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, msg);
     }
 
 }// end class
