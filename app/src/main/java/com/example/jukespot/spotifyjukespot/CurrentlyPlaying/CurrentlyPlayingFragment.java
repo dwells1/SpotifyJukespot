@@ -3,7 +3,7 @@ package com.example.jukespot.spotifyjukespot.CurrentlyPlaying;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.R;
-import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,7 +23,7 @@ import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
  * Use the {@link CurrentlyPlayingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CurrentlyPlayingFragment extends Fragment {
+public class CurrentlyPlayingFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = CurrentlyPlayingFragment.class.getSimpleName();
     // TODO: Rename parameter arguments, choose names that match
@@ -43,6 +44,12 @@ public class CurrentlyPlayingFragment extends Fragment {
     private Button btnNext;
     private Button btnPrev;
 
+    private boolean isSongPaused;
+    private boolean isSongPlaying = false;
+    private String name;
+    private String artist;
+
+    View view;
     public CurrentlyPlayingFragment() {
         // Required empty public constructor
     }
@@ -79,7 +86,108 @@ public class CurrentlyPlayingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_currently_playing, container, false);
+        view = inflater.inflate(R.layout.fragment_currently_playing, container, false);
+        initButtons();
+        initTextViews();
+
+        isSongPlaying = ((MainActivity)getActivity()).isSongPlaying();
+
+        if(isSongPlaying){
+            name = ((MainActivity) getActivity()).getCurrentTrackName();
+            artist = ((MainActivity) getActivity()).getCurrentTrackArtist();
+            updateSongInfo();
+        }else{
+            updateSongInfo();
+        }
+
+
+        return view;
+    }
+    public void updateSongInfo(){
+        if(isSongPlaying){
+            txtSongTitle.setText(name);
+            txtSongArtist.setText(artist);
+            showButtons();
+
+        }else{
+            txtSongTitle.setText("NO SONGS CURRENTLY PLAYING");
+            txtSongArtist.setVisibility(View.INVISIBLE);
+            hideButtons();
+
+        }
+    }
+
+    public void initButtons(){
+        btnPlay = view.findViewById(R.id.btnPlaySong);
+        btnPlay.setOnClickListener(this);
+
+        btnPause = view.findViewById(R.id.btnPauseSong);
+        btnPause.setOnClickListener(this);
+
+        btnNext = view.findViewById(R.id.btnNextSong);
+        btnNext.setOnClickListener(this);
+
+        btnPrev = view.findViewById(R.id.btnPrevSong);
+        btnPrev.setOnClickListener(this);
+    }
+
+    public void initTextViews(){
+        txtSongArtist = view.findViewById(R.id.txtSongArtist);
+        txtSongTitle = view.findViewById(R.id.txtSongTitle);
+    }
+
+    public void showButtons(){
+        btnPlay.setVisibility(View.VISIBLE);
+        btnPause.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
+        btnPrev.setVisibility(View.VISIBLE);
+    }
+    public void hideButtons(){
+        btnPlay.setVisibility(View.INVISIBLE);
+        btnPause.setVisibility(View.INVISIBLE);
+        btnNext.setVisibility(View.INVISIBLE);
+        btnPrev.setVisibility(View.INVISIBLE);
+    }
+    @Override
+    public void onClick(View view){
+        log.logMessage(TAG, "PRESSED: " + view.getResources().getResourceName(view.getId()));
+        boolean isSongPlaying = ((MainActivity)getActivity()).isSongPlaying();
+        switch(view.getId()){
+            case R.id.btnPlaySong:
+                if(isSongPlaying == false && isSongPaused == true){
+                    ((MainActivity)getActivity()).resumeSong();
+                    btnPlay.setText("Play");
+                    isSongPaused = false;
+                }
+                break;
+            case R.id.btnPauseSong:
+                if(((MainActivity)getActivity()).isSongPlaying()){
+                    ((MainActivity)getActivity())
+                            .pauseSong();
+                    btnPlay.setText("Resume");
+                    isSongPaused = true;
+                }
+                break;
+            case R.id.btnNextSong:
+                name = ((MainActivity)getActivity()).getMusicPlayer().getNextTrack().name;
+                artist = ((MainActivity)getActivity()).getMusicPlayer().getNextTrack().artistName;
+                ((MainActivity)getActivity()).nextSong();
+                if(name != null || artist != null){
+                    updateSongInfo();
+                }
+                break;
+
+            case R.id.btnPrevSong:
+                ((MainActivity)getActivity()).prevSong();
+                name = ((MainActivity)getActivity()).getMusicPlayer().getPrevTrack().name;
+                artist = ((MainActivity)getActivity()).getMusicPlayer().getPrevTrack().artistName;
+                if(name != null || artist != null){
+                    updateSongInfo();
+                }
+
+                break;
+        }
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -88,7 +196,12 @@ public class CurrentlyPlayingFragment extends Fragment {
             mListener.onFragmentInteraction(uri);
         }
     }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
 
+
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

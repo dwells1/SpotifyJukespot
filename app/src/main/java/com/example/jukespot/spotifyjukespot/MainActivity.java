@@ -23,6 +23,7 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
+import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
@@ -30,12 +31,16 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 
 /*music player imports*/
 import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 
 import kaaes.spotify.webapi.android.models.Track;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
-public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        SearchFragment.OnFragmentInteractionListener,
+        CurrentlyPlayingFragment.OnFragmentInteractionListener{
+
     private static final String TAG = MainActivity.class.getSimpleName();
     Logging log = new Logging();
 
@@ -98,17 +103,47 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         musicPlayer = new MusicPlayer();
         musicPlayer.initSpotifyPlayer(playerConfig);
     }
-
-    public void playSong(Track toPlay){
-        log.logMessage(TAG, "play song is called! for toPlay = " + toPlay.name);
-        musicPlayer.play(toPlay.uri);
+    public boolean isSongPlaying(){
+        return musicPlayer.isPlaying();
+    }
+    public void playSong(String toPlayURI){
+        musicPlayer.play(toPlayURI);
+    }
+    public void pauseSong(){
+        musicPlayer.pause();
+    }
+    public void resumeSong(){
+        musicPlayer.resume();
+    }
+    public void nextSong(){
+       if(musicPlayer.getNextTrack() != null)
+           musicPlayer.next();
     }
 
+    public void prevSong(){
+       if(musicPlayer.getPrevTrack() != null)
+           musicPlayer.prev();
+    }
     public void queueSong(Track toQueue){
         log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
         musicPlayer.queue(toQueue.uri);
     }
+    public String getCurrentTrackName(){
+        if(musicPlayer.getCurrentTrack().name == null)
+            return "";
+        return musicPlayer.getCurrentTrack().name;
+    }
 
+    public String getCurrentTrackArtist(){
+        if(musicPlayer.getCurrentTrack().artistName == null)
+            return "";
+        return musicPlayer.getCurrentTrack().artistName;
+    }
+    public MusicPlayer getMusicPlayer(){
+        if(musicPlayer != null)
+            return musicPlayer;
+        return null;
+    }
     public void initDrawerLayout(){
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -144,6 +179,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
 
+        }else if(currentSelectionFromMenuTitle.equals("Currently Playing")){
+            if(currentFragmentView != ViewTypeFragments.CURRENTLY_PLAYING){
+                currentFrag = new CurrentlyPlayingFragment();
+                updateCurrentViewType(ViewTypeFragments.CURRENTLY_PLAYING);
+            }else{
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
         }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
             if(currentFragmentView != ViewTypeFragments.CURRENT_QUEUE){
                 currentFrag = new CurrentQueueFragment();

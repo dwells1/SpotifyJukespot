@@ -51,7 +51,7 @@ public class MusicPlayer implements MusicPlayerInterface
                 spotifyPlayer = spotifyPlayerToImplement;
                 spotifyPlayer.addConnectionStateCallback(MusicPlayer.this);
                 spotifyPlayer.addNotificationCallback(MusicPlayer.this);
-
+                //playerPlaybackState = spotifyPlayer.getPlaybackState();
             }
 
             @Override
@@ -76,16 +76,28 @@ public class MusicPlayer implements MusicPlayerInterface
 
     @Override
     public void pause() {
-       //spotifyPlayer.pause(Player.OperationCallback callback);
+       spotifyPlayer.pause(mOperationCallback);
+    }
+    @Override
+    public void next() {
+        spotifyPlayer.skipToNext(mOperationCallback);
+    }
+
+    @Override
+    public void prev() {
+        spotifyPlayer.skipToPrevious(mOperationCallback);
     }
 
     @Override
     public void resume() {
-
+        spotifyPlayer.resume(mOperationCallback);
     }
 
     @Override
     public boolean isPlaying() {
+        if(playerPlaybackState == null){
+            return false;
+        }
         return playerPlaybackState.isPlaying;
     }
 
@@ -93,6 +105,7 @@ public class MusicPlayer implements MusicPlayerInterface
      * SDK METADATA Which is as follows:
      *  https://spotify.github.io/android-sdk/player/com/spotify/sdk/android/player/Metadata.Track.html
      **/
+
     @Nullable
     @Override
     public Metadata.Track getCurrentTrack() {

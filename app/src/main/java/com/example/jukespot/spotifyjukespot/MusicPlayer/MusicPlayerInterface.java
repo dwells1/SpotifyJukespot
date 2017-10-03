@@ -15,10 +15,10 @@ public interface MusicPlayerInterface{
 
     void play(String uri);
     void queue(String uri);
-
     void pause();
-
     void resume();
+    void next();
+    void prev();
 
     boolean isPlaying();
 
