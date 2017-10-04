@@ -184,7 +184,7 @@ public class SearchFragment extends Fragment implements Search.View{
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
-                        ((MainActivity)getActivity()).playSong(trackChosenInSearch);
+                        ((MainActivity)getActivity()).playSong(trackChosenInSearch.uri);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     default:

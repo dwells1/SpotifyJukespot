@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.CurrentQueueFragment;
+import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.spotify.sdk.android.player.Config;
@@ -32,7 +33,8 @@ public class MusicPlayer implements MusicPlayerInterface
     private SpotifyPlayer spotifyPlayer;
     private Metadata playerMetadata;
     private PlaybackState playerPlaybackState;
-
+    private PlayerEvent currentEvent;
+    private boolean isPaused;
     private final Player.OperationCallback mOperationCallback = new Player.OperationCallback() {
         @Override
         public void onSuccess() {
@@ -51,7 +53,7 @@ public class MusicPlayer implements MusicPlayerInterface
                 spotifyPlayer = spotifyPlayerToImplement;
                 spotifyPlayer.addConnectionStateCallback(MusicPlayer.this);
                 spotifyPlayer.addNotificationCallback(MusicPlayer.this);
-
+                //playerPlaybackState = spotifyPlayer.getPlaybackState();
             }
 
             @Override
@@ -76,23 +78,42 @@ public class MusicPlayer implements MusicPlayerInterface
 
     @Override
     public void pause() {
-       //spotifyPlayer.pause(Player.OperationCallback callback);
+       spotifyPlayer.pause(mOperationCallback);
+    }
+    @Override
+    public void next() {
+        spotifyPlayer.skipToNext(mOperationCallback);
+    }
+
+    @Override
+    public void prev() {
+        spotifyPlayer.skipToPrevious(mOperationCallback);
     }
 
     @Override
     public void resume() {
-
+        spotifyPlayer.resume(mOperationCallback);
     }
 
     @Override
     public boolean isPlaying() {
+        if(playerPlaybackState == null){
+            return false;
+        }
         return playerPlaybackState.isPlaying;
     }
+    public void setIsPaused(boolean isPaused){
+        this.isPaused = isPaused;
+    }
 
+    public boolean getIsPaused(){
+        return isPaused;
+    }
     /* This will return the track in the format provided by the
      * SDK METADATA Which is as follows:
      *  https://spotify.github.io/android-sdk/player/com/spotify/sdk/android/player/Metadata.Track.html
      **/
+
     @Nullable
     @Override
     public Metadata.Track getCurrentTrack() {
@@ -101,12 +122,12 @@ public class MusicPlayer implements MusicPlayerInterface
     @Nullable
     @Override
     public Metadata.Track getNextTrack() {
-        return playerMetadata.currentTrack;
+        return playerMetadata.nextTrack;
     }
     @Nullable
     @Override
     public Metadata.Track getPrevTrack() {
-        return playerMetadata.currentTrack;
+        return playerMetadata.prevTrack;
     }
 
     @Override
@@ -151,6 +172,7 @@ public class MusicPlayer implements MusicPlayerInterface
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent) {
         log.logMessage(TAG, "EVENT : " + playerEvent);
+        currentEvent = playerEvent;
         playerMetadata = spotifyPlayer.getMetadata();
         playerPlaybackState = spotifyPlayer.getPlaybackState();
         log.logMessage(TAG, "META : " + playerMetadata );

@@ -22,18 +22,6 @@ public class SearchPresenter implements Search.ActionListener{
     private SearchPager.CompleteListener mSearchListener;
     private Logging log;
 
-    //private Player mPlayer;
-//    private ServiceConnection mServiceConnection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            mPlayer = ((PlayerService.PlayerBinder) service).getService();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//           // mPlayer = null;
-//        }
-//    };
 
     public SearchPresenter(Context context, Search.View view) {
         mContext = context;
