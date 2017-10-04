@@ -103,41 +103,12 @@ public class MainActivity extends AppCompatActivity implements
         musicPlayer = new MusicPlayer();
         musicPlayer.initSpotifyPlayer(playerConfig);
     }
-    public boolean isSongPlaying(){
-        return musicPlayer.isPlaying();
-    }
-    public void playSong(String toPlayURI){
-        musicPlayer.play(toPlayURI);
-    }
-    public void pauseSong(){
-        musicPlayer.pause();
-    }
-    public void resumeSong(){
-        musicPlayer.resume();
-    }
-    public void nextSong(){
-       if(musicPlayer.getNextTrack() != null)
-           musicPlayer.next();
+    public void playSong(String uri){
+        musicPlayer.play(uri);
     }
 
-    public void prevSong(){
-       if(musicPlayer.getPrevTrack() != null)
-           musicPlayer.prev();
-    }
     public void queueSong(Track toQueue){
-        log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
         musicPlayer.queue(toQueue.uri);
-    }
-    public String getCurrentTrackName(){
-        if(musicPlayer.getCurrentTrack().name == null)
-            return "";
-        return musicPlayer.getCurrentTrack().name;
-    }
-
-    public String getCurrentTrackArtist(){
-        if(musicPlayer.getCurrentTrack().artistName == null)
-            return "";
-        return musicPlayer.getCurrentTrack().artistName;
     }
     public MusicPlayer getMusicPlayer(){
         if(musicPlayer == null){
