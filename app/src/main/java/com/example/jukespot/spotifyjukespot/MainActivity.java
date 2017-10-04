@@ -140,9 +140,11 @@ public class MainActivity extends AppCompatActivity implements
         return musicPlayer.getCurrentTrack().artistName;
     }
     public MusicPlayer getMusicPlayer(){
-        if(musicPlayer != null)
-            return musicPlayer;
-        return null;
+        if(musicPlayer == null){
+            log.logErrorNoToast(TAG, "Error Null Music Player");
+            return null;
+        }
+        return musicPlayer;
     }
     public void initDrawerLayout(){
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
