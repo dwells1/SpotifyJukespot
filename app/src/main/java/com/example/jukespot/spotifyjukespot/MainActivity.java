@@ -48,15 +48,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setHomeButtonEnabled(true);
     }
 
-    /*Location Stuff*/
-    /** Called when the user taps the Send button */
-    public void sendMessage (View view){
-        Intent intent = new Intent(this, GoogleLocActivity.class);;
-        startActivity(intent);
-    }
-
     public void addItemsToDrawerMenu() {
-        mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
+        mainUserOptionsForDrawer = new String[]{"Search","Locations", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
 
         menuAdaptor = new ArrayAdapter<String>(this,
@@ -73,12 +66,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         });
     }
     /*TODO: add detection so user cannot press same item twice and just reload*/
-    public void selectMenuItem(int position){
+    public void selectMenuItem(int position) {
         Fragment currentFrag = null;
         boolean isFragmentNeeded = true;
 
         /*TODO: Create Fragments for other menu options except maybe logout*/
-        if(currentSelectionFromMenuTitle.equals("Search")){
+        if (currentSelectionFromMenuTitle.equals("Search")) {
             currentFrag = new SearchFragment();
 
         }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
@@ -95,7 +88,12 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             Intent jukeboxLoginIntent = new Intent(this, Login.class);
             startActivity(jukeboxLoginIntent);
             finish();
+        } else if(currentSelectionFromMenuTitle.equals("Locations")) {
+            Intent locationIntent = new Intent(this, GoogleLocActivity.class);;
+            startActivity(locationIntent);
+            finish();
         }
+
         if(currentFrag != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragTransaction = null;
