@@ -1,10 +1,6 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Search;
 
-import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import java.util.List;
@@ -114,9 +110,6 @@ public class SearchPresenter implements Search.ActionListener{
 
     @Override
     public void selectTrack(Track item) {
-
-
-
 
 //        if (mPlayer == null) return;
 //

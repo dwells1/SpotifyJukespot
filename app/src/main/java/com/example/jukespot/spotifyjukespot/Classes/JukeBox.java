@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Classes;
 
 /**
  * Created by Alex on 9/20/2017.

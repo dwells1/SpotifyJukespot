@@ -28,7 +28,7 @@
     <EditText
         android:id="@+id/edJukeboxName"
         android:layout_width="300dp"
-        android:layout_height="35dp"
+        android:layout_height="40dp"
         android:layout_below="@+id/jukeboxNameTag"
         android:layout_alignStart="@+id/subHeader" />
     <TextView
@@ -43,7 +43,7 @@
     <EditText
         android:id="@+id/edJukeboxPassword"
         android:layout_width="300dp"
-        android:layout_height="35dp"
+        android:layout_height="40dp"
         android:layout_below="@+id/jukeboxPasswordTag"
         android:layout_alignStart="@+id/subHeader" />
 

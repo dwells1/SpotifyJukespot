@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.Search;
 
 import java.util.HashMap;
 import java.util.List;
