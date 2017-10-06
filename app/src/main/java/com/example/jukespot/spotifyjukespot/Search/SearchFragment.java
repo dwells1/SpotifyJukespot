@@ -17,6 +17,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
+
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.R;
@@ -38,6 +40,7 @@ public class SearchFragment extends Fragment implements Search.View{
     private static final String ARG_PARAM2 = "param2";
     private Logging log;
     private static final String TAG = SearchFragment.class.getSimpleName();
+    private User user;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -94,11 +97,16 @@ public class SearchFragment extends Fragment implements Search.View{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        user = User.getInstance();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         log = new Logging();
+        log.logMessage(TAG,user.getPassword());
+        log.logMessage(TAG,user.getUserName());
+        log.logMessage(TAG,user.getSessionToken());
+
     }
 
     @Override
@@ -212,12 +220,18 @@ public class SearchFragment extends Fragment implements Search.View{
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        log.logMessage(TAG,"saving state");
     }
 
     @Override
     public void reset() {
         mScrollListener.reset();
         mAdapter.clearData();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle saveState){
+        super.onSaveInstanceState(saveState);
     }
 
     @Override

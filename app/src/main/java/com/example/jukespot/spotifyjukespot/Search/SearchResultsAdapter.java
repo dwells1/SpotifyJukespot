@@ -53,9 +53,9 @@ public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickL
     }
 }
 
-public interface ItemSelectedListener {
-    void onItemSelected(View itemView, Track item);
-}
+    public interface ItemSelectedListener {
+        void onItemSelected(View itemView, Track item);
+    }
 
     public SearchResultsAdapter(Context context, ItemSelectedListener listener) {
         mContext = context;
@@ -69,6 +69,10 @@ public interface ItemSelectedListener {
     public void addData(List<Track> items) {
         mItems.addAll(items);
         notifyDataSetChanged();
+    }
+
+    public List<Track> getData(){
+        return mItems;
     }
 
     @Override

@@ -5,12 +5,18 @@ package com.example.jukespot.spotifyjukespot.Classes;
  */
 
 public class User {
-    String userName = "";
-    String password = "";
-    public User(String userName, String password){
-        this.userName = userName;
-        this.password = password;
+
+    private static User instance = new User();
+    private String userName = "";
+    private String password = "";
+    private String sessionToken;
+
+    private User(){};
+
+    public static User getInstance(){
+        return instance;
     }
+
 
     public void setPassword(String password) {
         this.password = password;
@@ -29,5 +35,12 @@ public class User {
     public String getUserName() {
 
         return userName;
+    }
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 }

@@ -30,6 +30,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".JukeboxUserOptions" />
+        <activity android:name=".NewUser" />
         <activity android:name=".JukeboxCreationOptions" />
         <activity android:name=".GoogleLocActivity"></activity>
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/edNewLoginName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Login Name"
+        android:inputType="textPersonName"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/edNewPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPersonName"
+        android:layout_alignTop="@+id/edNewLoginName"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="66dp" />
+
+    <EditText
+        android:id="@+id/edNewUserName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="User Name (Optional)"
+        android:inputType="textPersonName"
+        android:layout_below="@+id/edNewPassword"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="45dp" />
+
+    <EditText
+        android:id="@+id/edNewEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Email (Optional)"
+        android:inputType="textEmailAddress|textPersonName"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/bNewUser"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onCreateNewUserClicked"
+        android:clickable="true"
+        android:text="Create New User"
+        android:layout_below="@+id/edNewEmail"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="57dp" />
+</RelativeLayout>

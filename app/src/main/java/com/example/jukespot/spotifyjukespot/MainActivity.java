@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -34,13 +35,14 @@ import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.models.Track;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
-public class MainActivity extends AppCompatActivity implements
-        SearchFragment.OnFragmentInteractionListener,
-        CurrentlyPlayingFragment.OnFragmentInteractionListener{
-
+public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener,
+    CurrentlyPlayingFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     Logging log = new Logging();
 
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     private ViewTypeFragments currentFragmentView;
     private String token;
     private MusicPlayer musicPlayer;
+    private FragmentManager manager;
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CLIENT_ID = "4309049aaf574f63b61d3408408a4ff2";
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        manager = getSupportFragmentManager();
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -108,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void queueSong(Track toQueue){
+        log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
         musicPlayer.queue(toQueue.uri);
     }
     public MusicPlayer getMusicPlayer(){
@@ -142,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
         boolean isFragmentNeeded = true;
+        FragmentManager fm = getSupportFragmentManager();
 
         /*TODO: Create Fragments for Current Queue, and Currently Playing*/
         if(currentSelectionFromMenuTitle.equals("Search")){
@@ -185,9 +191,12 @@ public class MainActivity extends AppCompatActivity implements
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragTransaction = null;
             try {
-                fragTransaction = fragmentManager.beginTransaction();
-                fragTransaction.replace(R.id.content_frame, currentFrag);
+                fragTransaction = manager.beginTransaction();
+                fragTransaction.replace(R.id.content_frame, currentFrag,currentFrag.getClass().toString());
                 fragTransaction.commit();
+//                fragTransaction = fragmentManager.beginTransaction();
+//                fragTransaction.replace(R.id.content_frame, currentFrag);
+//                fragTransaction.commit();
             } catch (Exception FragNotFound) {
                 FragNotFound.printStackTrace();
             }
@@ -223,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragTransaction = null;
         try {
-            fragTransaction = fragmentManager.beginTransaction();
+            fragTransaction = manager.beginTransaction();
             fragTransaction.replace(R.id.content_frame, currentFrag);
             fragTransaction.commit();
         }catch(Exception FragNotFound){
