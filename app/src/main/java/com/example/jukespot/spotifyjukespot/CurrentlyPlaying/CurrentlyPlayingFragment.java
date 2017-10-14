@@ -127,26 +127,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
         return view;
     }
-    public void updateSongInfo(){
-        isSongPlaying = musicPlayer.isPlaying();
-        isSongPaused =musicPlayer.getIsPaused();
 
-        if(isSongPlaying || isSongPaused){
-            txtSongTitle.setText(name);
-            txtSongArtist.setText(artist);
-            setAlbumImage();
-            if(isSongPaused)
-                btnPlayPause.setText("Play");
-            showButtons();
-
-        }else{
-            txtSongTitle.setText("NO SONGS CURRENTLY PLAYING");
-            txtSongArtist.setVisibility(View.INVISIBLE);
-            albumCoverView.setVisibility(View.INVISIBLE);
-            hideButtons();
-
-        }
-    }
     public void setAlbumImage(){
 
         new AsyncTask<Void,Void,Void>(){
@@ -208,6 +189,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     public void onClick(View view){
         log.logMessage(TAG, "PRESSED: " + view.getResources().getResourceName(view.getId()));
         isSongPlaying = musicPlayer.isPlaying();
+       // isSongPaused = musicPlayer.getIsPaused();
         switch(view.getId()){
             case R.id.btnPlayPauseSong:
                 if(!isSongPlaying && isSongPaused){
@@ -224,14 +206,18 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 }
                 break;
             case R.id.btnNextSong:
+               // musicPlayer.next();
                 try{
                     name = musicPlayer.getNextTrack().name;
-                    artist = musicPlayer.getNextTrack().artistName;
-                    urlString = musicPlayer.getNextTrack().albumCoverWebUrl;
+                    artist = musicPlayer.getNextTrack().artists.get(0).name;
+                    urlString = musicPlayer.getNextTrack().album.images.get(0).url;
                     log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
+                    isSongPaused = false;
+                    musicPlayer.setIsPaused(isSongPaused);
+                    btnPlayPause.setText("Pause");
                     musicPlayer.next();
-                }catch(NullPointerException noNextTrack){
+                }catch(NullPointerException | IndexOutOfBoundsException noNextTrack){
                     log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
                     updateSongInfo();
                     break;
@@ -241,12 +227,15 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             case R.id.btnPrevSong:
                 try{
                     name = musicPlayer.getPrevTrack().name;
-                    artist = musicPlayer.getPrevTrack().artistName;
-                    urlString = musicPlayer.getPrevTrack().albumCoverWebUrl;
+                    artist = musicPlayer.getPrevTrack().artists.get(0).name;
+                    urlString = musicPlayer.getPrevTrack().album.images.get(0).url;
                     log.logMessage(TAG,"Previous SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
+                    isSongPaused = false;
+                    musicPlayer.setIsPaused(isSongPaused);
+                    btnPlayPause.setText("Pause");
                     musicPlayer.prev();
-                }catch(NullPointerException noPrevTrack){
+                }catch(NullPointerException  | IndexOutOfBoundsException noPrevTrack){
                     log.logMessageWithToast(getActivity(),TAG,"No Previous Tracks in Current Queue!");
                     updateSongInfo();
                     break;
@@ -256,7 +245,26 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         ((MainActivity) getActivity()).getMusicPlayer();
 
     }
+    public void updateSongInfo(){
+        isSongPlaying = musicPlayer.isPlaying();
+        isSongPaused =musicPlayer.getIsPaused();
 
+        if(isSongPlaying || isSongPaused){
+            txtSongTitle.setText(name);
+            txtSongArtist.setText(artist);
+            setAlbumImage();
+            if(isSongPaused)
+                btnPlayPause.setText("Play");
+            showButtons();
+
+        }else{
+            txtSongTitle.setText("NO SONGS CURRENTLY PLAYING");
+            txtSongArtist.setVisibility(View.INVISIBLE);
+            albumCoverView.setVisibility(View.INVISIBLE);
+            hideButtons();
+
+        }
+    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);

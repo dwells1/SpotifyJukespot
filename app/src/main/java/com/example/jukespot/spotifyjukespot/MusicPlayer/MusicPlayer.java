@@ -18,6 +18,9 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -35,6 +38,12 @@ public class MusicPlayer implements MusicPlayerInterface
     private PlaybackState playerPlaybackState;
     private PlayerEvent currentEvent;
     private boolean isPaused;
+
+    private List<Track> currentQueue;
+
+    /*Set max size of prev tracks saved*/
+    private List<Track> previousTrackQueue;
+
     private final Player.OperationCallback mOperationCallback = new Player.OperationCallback() {
         @Override
         public void onSuccess() {
@@ -53,6 +62,8 @@ public class MusicPlayer implements MusicPlayerInterface
                 spotifyPlayer = spotifyPlayerToImplement;
                 spotifyPlayer.addConnectionStateCallback(MusicPlayer.this);
                 spotifyPlayer.addNotificationCallback(MusicPlayer.this);
+                currentQueue = new ArrayList<Track>();
+                previousTrackQueue = new ArrayList<Track>();
                 //playerPlaybackState = spotifyPlayer.getPlaybackState();
             }
 
@@ -65,29 +76,62 @@ public class MusicPlayer implements MusicPlayerInterface
         //playerMetadata = spotifyPlayer.getMetadata();
     }
     @Override
-    public void play(String uri) {
+    public void play(Track trackToPlay) {
        // log.logMessage(TAG,"song playing: " + uri);
-        spotifyPlayer.playUri(null, uri, 0, 0);
+        spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
+        log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.name);
+        //printCurrentQueue();
+
         //playerMetadata = spotifyPlayer.getMetadata();
         //log.logMessage(TAG,"CURRENTLY PLAYING METADATA TRACK" + playerMetadata.currentTrack.name);
     }
     @Override
-    public void queue(String uri){
-        spotifyPlayer.queue(mOperationCallback,uri);
+    public void queue(Track track){
+        currentQueue.add(track);
+        printCurrentQueue();
+    }
+    public void queueAtPosition(int position, Track trackToQueue){
+        currentQueue.add(position, trackToQueue);
+        if(position == 0 ) {
+            play(trackToQueue);
+        }
+        log.logMessage(TAG,"Add " + trackToQueue.name + " at Position : " + position);
+        printCurrentQueue();
     }
 
+    public List<Track> getQueue(){return currentQueue;}
+    public void printCurrentQueue(){
+        if(currentQueue.isEmpty())
+            return;
+
+        log.logMessage(TAG,"Current Queue: ");
+        for (Track t : currentQueue ){
+            log.logMessage(TAG, "track: " + t.name);
+        }
+    }
     @Override
     public void pause() {
        spotifyPlayer.pause(mOperationCallback);
     }
+
     @Override
     public void next() {
-        spotifyPlayer.skipToNext(mOperationCallback);
+        //spotifyPlayer.skipToNext(mOperationCallback);
+        previousTrackQueue.add(currentQueue.get(0));
+        currentQueue.remove(0);
+        if(!currentQueue.isEmpty()) {
+            play(currentQueue.get(0));
+        }else{
+            log.logMessage(TAG,"No NEXT song in Queue");
+        }
     }
 
     @Override
     public void prev() {
-        spotifyPlayer.skipToPrevious(mOperationCallback);
+        int prevQueueNdx = previousTrackQueue.size() - 1;
+        queueAtPosition(0, previousTrackQueue.get(prevQueueNdx));
+        previousTrackQueue.remove(prevQueueNdx);
+        //play(currentQueue.get(0));
     }
 
     @Override
@@ -121,13 +165,13 @@ public class MusicPlayer implements MusicPlayerInterface
     }
     @Nullable
     @Override
-    public Metadata.Track getNextTrack() {
-        return playerMetadata.nextTrack;
+    public Track getNextTrack() {
+        return currentQueue.get(1);
     }
     @Nullable
     @Override
-    public Metadata.Track getPrevTrack() {
-        return playerMetadata.prevTrack;
+    public Track getPrevTrack() {
+        return previousTrackQueue.get(previousTrackQueue.size() - 1 );
     }
 
     @Override
@@ -173,6 +217,13 @@ public class MusicPlayer implements MusicPlayerInterface
     public void onPlaybackEvent(PlayerEvent playerEvent) {
         log.logMessage(TAG, "EVENT : " + playerEvent);
         currentEvent = playerEvent;
+        //check if song end naturally
+        if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyAudioDeliveryDone)){
+            log.logMessage(TAG,"Song Ended!");
+            next();
+        }
+        //check if user pressed next
+
         playerMetadata = spotifyPlayer.getMetadata();
         playerPlaybackState = spotifyPlayer.getPlaybackState();
         log.logMessage(TAG, "META : " + playerMetadata );

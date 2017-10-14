@@ -21,6 +21,7 @@ import kaaes.spotify.webapi.android.models.Track;
 import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.R;
 import com.example.jukespot.spotifyjukespot.ResultListScrollListener;
 
@@ -60,6 +61,7 @@ public class SearchFragment extends Fragment implements Search.View{
     private Track trackChosenInSearch;
     private String trackName;
     private String trackArtist;
+    private MusicPlayer musicPlayer;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -103,6 +105,7 @@ public class SearchFragment extends Fragment implements Search.View{
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         log = new Logging();
+        musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
         log.logMessage(TAG,user.getPassword());
         log.logMessage(TAG,user.getUserName());
         log.logMessage(TAG,user.getSessionToken());
@@ -188,11 +191,17 @@ public class SearchFragment extends Fragment implements Search.View{
                 String itemChosen = item.getTitle().toString();
                 switch(itemChosen){
                     case "Add to Queue":
-                        ((MainActivity)getActivity()).queueSong(trackChosenInSearch);
+                        if(musicPlayer.getQueue().isEmpty()){
+                            musicPlayer.queueAtPosition(0,trackChosenInSearch);
+                            //musicPlayer.play(trackChosenInSearch);
+                        }else{
+                            musicPlayer.queue(trackChosenInSearch);
+                        }
+
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
-                        ((MainActivity)getActivity()).playSong(trackChosenInSearch.uri);
+                        musicPlayer.queueAtPosition(0, trackChosenInSearch);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     default:

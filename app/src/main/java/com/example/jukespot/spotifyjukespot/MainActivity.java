@@ -107,13 +107,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         musicPlayer = new MusicPlayer();
         musicPlayer.initSpotifyPlayer(playerConfig);
     }
-    public void playSong(String uri){
-        musicPlayer.play(uri);
+    public void playSong(Track track){
+        musicPlayer.play(track);
     }
 
     public void queueSong(Track toQueue){
         log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
-        musicPlayer.queue(toQueue.uri);
+        musicPlayer.queue(toQueue);
     }
     public MusicPlayer getMusicPlayer(){
         if(musicPlayer == null){
