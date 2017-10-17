@@ -64,7 +64,6 @@ public class Login extends Activity{
 
     public void onRegLoginClicked(View view){
         log.logMessage(TAG,"LOGIN REG PRESSED");
-        /*TODO: check username and password are in database*/
         String UserName = edUsername.getText().toString();
         String Password = edPassword.getText().toString();
         log.logMessage(TAG,UserName);

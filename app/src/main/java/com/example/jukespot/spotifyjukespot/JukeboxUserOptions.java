@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -17,6 +18,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 public class JukeboxUserOptions extends Activity {
     private Button btnCreateJukebox;
     private Button btnJoinJukebox;
+    private User user;
     Logging log;
     private static final String TAG = JukeboxUserOptions.class.getSimpleName();
 
@@ -31,6 +33,8 @@ public class JukeboxUserOptions extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log = new Logging();
+        user= User.getInstance();
+
         initJukeboxButtons();
         setContentView(R.layout.activity_jukebox_user_options);
     }
@@ -42,6 +46,17 @@ public class JukeboxUserOptions extends Activity {
 
     public void onStartNewJukeboxClicked(View view){
         log.logMessage(TAG,"START NEW PRESSED");
+        openSpotifyLogin("CREATE");
+    }
+
+
+    public void onJoinJukeboxClicked(View view){
+        log.logMessage(TAG,"JOIN JUKE PRESSED");
+        openSpotifyLogin("JOIN");
+
+    }// end onJoinJukeboxClicked
+
+    public void openSpotifyLogin(String pressed){
         String loginToken = CredentialsHandler.getToken(this);
         if(loginToken == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -59,15 +74,16 @@ public class JukeboxUserOptions extends Activity {
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }else{
             //startMainActivity(loginToken);
-            startCreatorJukeboxOptions(loginToken);
+            if(pressed.equals("CREATE")){
+                user.setTypeOfUser("Creator");
+                startCreatorJukeboxOptions(loginToken);
+            }else{
+                user.setTypeOfUser("Subscriber");
+                startJoinJukeboxOptions(loginToken);
+            }
+
         }
-
     }
-
-    public void onJoinJukeboxClicked(View view){
-        /*TODO: add functionality for joining a jukebox button at the moment it does nothing*/
-        log.logMessage(TAG,"JOIN JUKE PRESSED");
-    }// end onJoinJukeboxClicked
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -101,6 +117,13 @@ public class JukeboxUserOptions extends Activity {
                 JukeboxCreationOptions.class);
         jukeboxCreatorOptionsIntent.putExtra("EXTRA_TOKEN", token);
         startActivity(jukeboxCreatorOptionsIntent);
+        finish();
+    }
+    private void startJoinJukeboxOptions(String token){
+        Intent jukeboxSubscriberOptionsIntent = new Intent(this,
+                JoinJukebox.class);
+        jukeboxSubscriberOptionsIntent.putExtra("EXTRA_TOKEN", token);
+        startActivity(jukeboxSubscriberOptionsIntent);
         finish();
     }
 

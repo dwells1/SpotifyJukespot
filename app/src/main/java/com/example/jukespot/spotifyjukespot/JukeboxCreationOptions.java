@@ -1,6 +1,7 @@
 package com.example.jukespot.spotifyjukespot;
 
 import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
 import android.content.Intent;
@@ -25,7 +26,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
     EditText edJukeboxName;
     EditText edJukeboxPassword;
     Button btnStartJukebox;
-    /*TODO: initialize other inputs Jukebox Name, Password, Permission Checkboxes*/
+
     JukeBox jukeBox;
     String jukeName;
     String jukePassword;
@@ -34,20 +35,23 @@ public class JukeboxCreationOptions extends AppCompatActivity {
     Boolean isPlayAutomatic;
 
     String accessToken;
-
+    private User user;
 
     private static final String TAG = JukeboxCreationOptions.class.getSimpleName();
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_jukebox_creation_options);
         Intent intent = this.getIntent();
         accessToken = intent.getStringExtra(EXTRA_TOKEN);
         initDistanceSpinner();
         initLayoutValues();
-
+        log = new Logging();
+        user = User.getInstance();
+        user.setTypeOfUser("Creator");
     }
 
     @Override
@@ -77,7 +81,32 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         edJukeboxPassword = (EditText)findViewById(R.id.edJukeboxPassword);
     }
 
+    public void onCheckBoxClicked(View view) {
+        // Is the view now checked?
+        boolean checked = ((CheckBox) view).isChecked();
 
+        // Check which checkbox was clicked
+        switch(view.getId()) {
+            case R.id.chkEditQueue:
+                if (checked){
+                    isQueueEditable = true;
+                    log.logMessage(TAG, "Allow Subscrivers to edit Queue True");
+                }else{
+                    isQueueEditable = false;
+                    log.logMessage(TAG, "Allow Subscrivers to edit Queue False");
+                }
+                break;
+            case R.id.chkPlayAutomatic:
+                if (checked){
+                    isPlayAutomatic = true;
+                    log.logMessage(TAG, "Play automaticly True");
+                }else{
+                    isPlayAutomatic = false;
+                    log.logMessage(TAG, "Play automaticly False");
+                };
+                break;
+        }
+    }
     public void onStartJukeboxClicked(View view){
         //take to main activity for now
         /*TODO: Store all the setting inputted by Creator and check that they are correct*/
@@ -87,7 +116,9 @@ public class JukeboxCreationOptions extends AppCompatActivity {
              isQueueEditable = false;
          }
          if(chkPlayAutomatic.isChecked()){
+
              isPlayAutomatic = true;
+             log.logMessage(TAG, "The value  is automatic"+ isPlayAutomatic);
          }else{
              isPlayAutomatic = false;
          }

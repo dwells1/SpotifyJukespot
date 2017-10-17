@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 /*TODO:WHEN MAKING A NEW FRAGMENT MAKE SURE THIS VERSION OF FRAGMENT IS IMPORTED IN THAT FILE**/
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Context;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
@@ -61,12 +64,14 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private MusicPlayer musicPlayer;
     private FragmentManager manager;
 
+    boolean isConfirmed;
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CLIENT_ID = "4309049aaf574f63b61d3408408a4ff2";
     @SuppressWarnings("SpellCheckingInspection")
     private static final String REDIRECT_URI = "jukebox://callback";
 
     private static final int REQUEST_CODE = 1337;
+    private User user;
     /* NOTE: When Changing fragments update current viewtype
      * and check if current view type is the same as the new viewtype
      * implemented for search and current queue look there
@@ -76,10 +81,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         manager = getSupportFragmentManager();
-
+        user = User.getInstance();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("EXTRA_TOKEN");
+            //if(user.getTypeOfUser().equals("Creator"))
             initPlayer();
             Log.d(TAG,token);
             //The key argument here must match that used in the other activity
@@ -128,8 +134,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         currentActivityTitle = getTitle().toString();
     }
     public void addItemsToDrawerMenu() {
-        mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
+        if(user.getTypeOfUser().equals("Creator"))  {
+            mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
+        }   else{
+             mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
+                 "Currently Playing", "Leave Jukebox", "Logout"};
+        }
 
         menuAdaptor = new ArrayAdapter<String>(this,
                 R.layout.drawer_options_list_layout, mainUserOptionsForDrawer);
@@ -144,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         });
     }
+
+
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
         boolean isFragmentNeeded = true;
@@ -174,19 +187,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         }else if(currentSelectionFromMenuTitle.equals("End Current Jukebox")){
             /*TODO: Add Alert so user confirms ending jukebox*/
-            Toast.makeText(this,"Jukebox Ended",Toast.LENGTH_SHORT).show();
-            musicPlayer.endCurrentPlayer();
-            Intent jukeboxOptionsIntent = new Intent(this, JukeboxUserOptions.class);
-            startActivity(jukeboxOptionsIntent);
-            finish();
+            //Do you wanna end this jukebox?
+            createAlert("Are you sure you want to end current jukebox?");
+
         }else if(currentSelectionFromMenuTitle.equals("Logout")){
             /*TODO: Should this log them out of spotify??*/
-            Toast.makeText(this,"Logout Successful",Toast.LENGTH_SHORT).show();
-            musicPlayer.endCurrentPlayer();
-            Intent jukeboxLoginIntent = new Intent(this, Login.class);
-            startActivity(jukeboxLoginIntent);
-            finish();
+            createAlert("Are you sure you want to logout?");
+
+        }else if (currentSelectionFromMenuTitle.equals("Leave Jukebox")){
+            //Subscriber
+            createAlert("Are you sure you want to leave current jukebox?");
         }
+
         if(currentFrag != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragTransaction = null;
@@ -204,7 +216,60 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             mDrawerLayout.closeDrawer(mDrawerList);
         }
     }
+    public void createAlert(final String message){
 
+        AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
+        alertDlg.setMessage(message);
+        alertDlg.setCancelable(false);
+        alertDlg.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                isConfirmed = true;
+                log.logMessage(TAG, "pressed yes to end current jukebox");
+                if(message.equals("Are you sure you want to end current jukebox?")){
+                    //Creator
+                    log.logMessage(TAG, "pressed leave current jukebox");
+                    Toast.makeText(getApplicationContext(), "Jukebox Ended", Toast.LENGTH_SHORT).show();
+                    musicPlayer.endCurrentPlayer();
+                    Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
+                    startActivity(jukeboxOptionsIntent);
+                    finish();
+                }
+                if (message.equals("Are you sure you want to logout?")){
+                    //Creator and subcriber have the same behavior for now.
+                    /*TODO: Create another logout for Subscriber*/
+                    log.logMessage(TAG, "pressed Are you sure you want to logout");
+                    Toast.makeText(getApplicationContext(), "You sucessfully logout", Toast.LENGTH_SHORT).show();
+                    try {
+                          musicPlayer.endCurrentPlayer();
+                        }catch(NullPointerException e) {
+                         log.logMessage(TAG, "Music Player was not initialize before login out");
+                        }
+                        Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
+                          startActivity(jukeboxLoginIntent);
+                          finish();
+                }
+                if(message.equals("Are you sure you want to leave current jukebox?")){
+                    //Subscriber
+                    Toast.makeText(getApplicationContext(),"Left Jukebox",Toast.LENGTH_SHORT).show();
+                    musicPlayer.endCurrentPlayer();
+                    Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
+                    startActivity(jukeboxOptionsIntent);
+                    finish();
+                }
+
+            }
+        });
+        alertDlg.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                isConfirmed = false;
+            }
+        });
+        alertDlg.create().show();
+
+    }
     public void setupDrawerMenu(){
         menuDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.navigation_drawer_open,R.string.navigation_drawer_close){
