@@ -1,8 +1,10 @@
 package com.example.jukespot.spotifyjukespot;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,7 +20,9 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 public class JukeboxUserOptions extends Activity {
     private Button btnCreateJukebox;
     private Button btnJoinJukebox;
+    private Button btnLogoutJukebox;
     private User user;
+    boolean isConfirmed;
     Logging log;
     private static final String TAG = JukeboxUserOptions.class.getSimpleName();
 
@@ -42,6 +46,7 @@ public class JukeboxUserOptions extends Activity {
     public void initJukeboxButtons(){
         btnCreateJukebox = (Button) findViewById(R.id.bStartJukebox);
         btnJoinJukebox = (Button) findViewById(R.id.bJoinJukebox);
+        btnLogoutJukebox = (Button) findViewById(R.id.bLogout);
     }
 
     public void onStartNewJukeboxClicked(View view){
@@ -55,6 +60,43 @@ public class JukeboxUserOptions extends Activity {
         openSpotifyLogin("JOIN");
 
     }// end onJoinJukeboxClicked
+
+    public void onLogoutJukeboxClicked(View view){
+        log.logMessage(TAG,"LOGOUT JUKE PRESSED");
+        createAlert("Are you sure you want to logout?");
+
+    }
+    public void createAlert(final String message){
+
+        AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
+        alertDlg.setMessage(message);
+        alertDlg.setCancelable(false);
+        alertDlg.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int which){
+                isConfirmed = true;
+                log.logMessage(TAG, "pressed yes to logout");
+                if(message.equals("Are you sure you want to logout?")){
+
+                    Toast.makeText(getApplicationContext(), "Successfully logout", Toast.LENGTH_SHORT).show();
+
+                    Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
+                    startActivity(jukeboxLoginIntent);
+                    finish();
+                }
+
+            }
+        });
+        alertDlg.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                isConfirmed = false;
+            }
+        });
+        alertDlg.create().show();
+
+    }
 
     public void openSpotifyLogin(String pressed){
         String loginToken = CredentialsHandler.getToken(this);

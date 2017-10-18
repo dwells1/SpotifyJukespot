@@ -186,12 +186,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }else if(currentSelectionFromMenuTitle.equals("End Current Jukebox")){
-            /*TODO: Add Alert so user confirms ending jukebox*/
-            //Do you wanna end this jukebox?
             createAlert("Are you sure you want to end current jukebox?");
 
         }else if(currentSelectionFromMenuTitle.equals("Logout")){
-            /*TODO: Should this log them out of spotify??*/
+
             createAlert("Are you sure you want to logout?");
 
         }else if (currentSelectionFromMenuTitle.equals("Leave Jukebox")){

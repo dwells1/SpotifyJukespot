@@ -48,7 +48,16 @@
         android:onClick="onJoinJukeboxClicked"
         android:text="Join Jukebox" />
 
-
+    <Button
+        android:id="@+id/bLogout"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_marginTop="173dp"
+        android:layout_width="143dp"
+        android:layout_height="59dp"
+        android:layout_alignStart="@+id/bStartJukebox"
+        android:layout_below="@+id/view"
+        android:onClick="onLogoutJukeboxClicked"
+        android:text="Logout" />
 
 
 </RelativeLayout>
