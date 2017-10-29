@@ -13,6 +13,7 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Classes.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -117,10 +118,10 @@ public class JukeboxUserOptions extends Activity {
         }else{
             //startMainActivity(loginToken);
             if(pressed.equals("CREATE")){
-                user.setTypeOfUser("Creator");
+                user.setTypeOfUser(UserType.CREATOR);
                 startCreatorJukeboxOptions(loginToken);
             }else{
-                user.setTypeOfUser("Subscriber");
+                user.setTypeOfUser(UserType.SUBSCRIBER);
                 startJoinJukeboxOptions(loginToken);
             }
 

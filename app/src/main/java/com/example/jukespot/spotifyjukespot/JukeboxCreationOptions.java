@@ -2,6 +2,7 @@ package com.example.jukespot.spotifyjukespot;
 
 import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Classes.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
 import android.content.Intent;
@@ -51,7 +52,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         initLayoutValues();
         log = new Logging();
         user = User.getInstance();
-        user.setTypeOfUser("Creator");
+        user.setTypeOfUser(UserType.CREATOR);
     }
 
     @Override

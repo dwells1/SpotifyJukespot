@@ -13,8 +13,8 @@ import kaaes.spotify.webapi.android.models.Track;
 
 public interface MusicPlayerInterface{
 
-    void play(Track track);
-    void queue(Track track);
+    void play(SimpleTrack track);
+    void queue(SimpleTrack track);
     void pause();
     void resume();
     void next();
@@ -33,9 +33,9 @@ public interface MusicPlayerInterface{
 
     /*Due to the implementation of our own Queue the Spotify Web API Tracks have to be used*/
     @Nullable
-    Track getNextTrack();
+    SimpleTrack getNextTrack();
     @Nullable
-    Track getPrevTrack();
+    SimpleTrack getPrevTrack();
 
 
     void endCurrentPlayer();

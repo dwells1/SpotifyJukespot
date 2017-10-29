@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Classes.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class JoinJukebox extends Activity {
         Bundle extras = getIntent().getExtras();
         authToken = extras.getString("EXTRA_TOKEN");
         user = User.getInstance();
-        user.setTypeOfUser("Subscriber");
+        user.setTypeOfUser(UserType.SUBSCRIBER);
         setContentView(R.layout.activity_jukebox_subscriber_options);
 
 

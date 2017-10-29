@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot;
 
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.net.Uri;
 /*TODO:WHEN MAKING A NEW FRAGMENT MAKE SURE THIS VERSION OF FRAGMENT IS IMPORTED IN THAT FILE**/
@@ -17,7 +18,6 @@ import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
+import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
@@ -35,13 +36,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 
 /*music player imports*/
 import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.SpotifyPlayer;
-
-
-import java.util.ArrayList;
-import java.util.List;
-
-import kaaes.spotify.webapi.android.models.Track;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener,
@@ -63,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private String token;
     private MusicPlayer musicPlayer;
     private FragmentManager manager;
+    private CurrentlyPlayingFragment currentPlayingFrag;
 
     boolean isConfirmed;
     @SuppressWarnings("SpellCheckingInspection")
@@ -113,14 +108,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         musicPlayer = new MusicPlayer();
         musicPlayer.initSpotifyPlayer(playerConfig);
     }
-    public void playSong(Track track){
-        musicPlayer.play(track);
-    }
 
-    public void queueSong(Track toQueue){
-        log.logMessage(TAG, "queue song is called! for toQueue = " + toQueue.name);
-        musicPlayer.queue(toQueue);
-    }
     public MusicPlayer getMusicPlayer(){
         if(musicPlayer == null){
             log.logErrorNoToast(TAG, "Error Null Music Player");
@@ -174,13 +162,16 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }else if(currentSelectionFromMenuTitle.equals("Currently Playing")){
             if(currentFragmentView != ViewTypeFragments.CURRENTLY_PLAYING){
                 currentFrag = new CurrentlyPlayingFragment();
+                ;
                 updateCurrentViewType(ViewTypeFragments.CURRENTLY_PLAYING);
+
             }else{
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }else if(currentSelectionFromMenuTitle.equals("Current Queue")){
             if(currentFragmentView != ViewTypeFragments.CURRENT_QUEUE){
                 currentFrag = new CurrentQueueFragment();
+
                 updateCurrentViewType(ViewTypeFragments.CURRENT_QUEUE);
             }else{
                 mDrawerLayout.closeDrawer(mDrawerList);
@@ -196,24 +187,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             //Subscriber
             createAlert("Are you sure you want to leave current jukebox?");
         }
+        openChosenFrag(currentFrag);
 
-        if(currentFrag != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragTransaction = null;
-            try {
-                fragTransaction = manager.beginTransaction();
-                fragTransaction.replace(R.id.content_frame, currentFrag,currentFrag.getClass().toString());
-                fragTransaction.commit();
-//                fragTransaction = fragmentManager.beginTransaction();
-//                fragTransaction.replace(R.id.content_frame, currentFrag);
-//                fragTransaction.commit();
-            } catch (Exception FragNotFound) {
-                FragNotFound.printStackTrace();
-            }
-            currentActivityTitle = currentSelectionFromMenuTitle;
-            mDrawerLayout.closeDrawer(mDrawerList);
-        }
     }
+
+
     public void createAlert(final String message){
 
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
@@ -268,6 +246,24 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         alertDlg.create().show();
 
     }
+
+    public void openChosenFrag(Fragment currentFrag){
+        if(currentFrag != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragTransaction = null;
+            try {
+                fragTransaction = manager.beginTransaction();
+                fragTransaction.replace(R.id.content_frame, currentFrag,currentFrag.getClass().toString());
+                fragTransaction.commit();
+
+            } catch (Exception FragNotFound) {
+                FragNotFound.printStackTrace();
+            }
+            currentActivityTitle = currentSelectionFromMenuTitle;
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
+    }
+
     public void setupDrawerMenu(){
         menuDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.navigation_drawer_open,R.string.navigation_drawer_close){
@@ -345,8 +341,23 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         return new Intent(context, MainActivity.class);
     }
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateGUICurrentlyPlaying();
+        }
+    };
+    public void updateGUICurrentlyPlaying(){
+        if(currentFragmentView.equals(ViewTypeFragments.CURRENTLY_PLAYING)){
+            Fragment current = new CurrentlyPlayingFragment();
+            openChosenFrag(current);
+        }
+    }
     public void updateCurrentViewType(ViewTypeFragments current){
         currentFragmentView = current;
+    }
+    public ViewTypeFragments getCurrentFrgament() {
+        return currentFragmentView;
     }
 
 }

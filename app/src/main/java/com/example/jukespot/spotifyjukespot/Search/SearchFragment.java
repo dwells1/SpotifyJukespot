@@ -22,6 +22,7 @@ import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
 import com.example.jukespot.spotifyjukespot.ResultListScrollListener;
 
@@ -59,6 +60,7 @@ public class SearchFragment extends Fragment implements Search.View{
     private PopupMenu songPopUp;
     /*song pressed info*/
     private Track trackChosenInSearch;
+    private SimpleTrack trackConverted;
     private String trackName;
     private String trackArtist;
     private MusicPlayer musicPlayer;
@@ -162,6 +164,7 @@ public class SearchFragment extends Fragment implements Search.View{
                 TextView songTitleView = (TextView) itemView.findViewById(R.id.entity_title);
                 TextView artistView = (TextView) itemView.findViewById(R.id.entity_subtitle);
                 trackChosenInSearch = item;
+                trackConverted = convertToSimpleTrack(trackChosenInSearch);
                 trackArtist = artistView.getText().toString();
                 trackName = songTitleView.getText().toString();
                 log.logMessage(TAG,"Pressed Song From Search: " + trackName +" by "+ trackArtist);
@@ -182,6 +185,17 @@ public class SearchFragment extends Fragment implements Search.View{
         }
 
     }
+
+    public SimpleTrack convertToSimpleTrack(Track toConvert){
+        if(toConvert == null){
+            log.logMessage(TAG, "Error Converting Track to SimpleTrack");
+            return null;
+        }
+
+        SimpleTrack simpleTrack = new SimpleTrack(toConvert.name,
+                toConvert.artists.get(0).name, toConvert.uri, toConvert.album.images.get(0).url);
+        return simpleTrack;
+    }
     public void showPopUp(View anchor){
         songPopUp = new PopupMenu(this.getActivity(), anchor);
         songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
@@ -192,16 +206,16 @@ public class SearchFragment extends Fragment implements Search.View{
                 switch(itemChosen){
                     case "Add to Queue":
                         if(musicPlayer.getQueue().isEmpty()){
-                            musicPlayer.queueAtPosition(0,trackChosenInSearch);
+                            musicPlayer.queueAtPosition(0,trackConverted);
                             //musicPlayer.play(trackChosenInSearch);
                         }else{
-                            musicPlayer.queue(trackChosenInSearch);
+                            musicPlayer.queue(trackConverted);
                         }
 
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
-                        musicPlayer.queueAtPosition(0, trackChosenInSearch);
+                        musicPlayer.queueAtPosition(0, trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     default:

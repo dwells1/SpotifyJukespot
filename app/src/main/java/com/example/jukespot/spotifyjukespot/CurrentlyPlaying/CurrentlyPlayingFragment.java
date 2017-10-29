@@ -19,6 +19,7 @@ import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.R;
+import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.io.IOException;
@@ -63,9 +64,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     private Bitmap coverImg;
     private MusicPlayer musicPlayer;
 
+    private View view;
 
 
-    View view;
     public CurrentlyPlayingFragment() {
         // Required empty public constructor
     }
@@ -111,7 +112,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             isSongPlaying = musicPlayer.isPlaying();
             isSongPaused = musicPlayer.getIsPaused();
 
-
+            //checkWhenSongEnds();
             if(isSongPlaying || isSongPaused){
                 name = musicPlayer.getCurrentTrack().name;
                 artist = musicPlayer.getCurrentTrack().artistName;
@@ -126,6 +127,26 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         }
 
         return view;
+    }
+    public void checkWhenSongEnds(){
+        new AsyncTask<Void, Void, Void>(){
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                while(true){
+                    PlayerEvent playerEvent = musicPlayer.getCurrentEvent();
+                    if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyAudioDeliveryDone)){
+                        log.logMessage(TAG, "UPDATING!!!!");
+                        name = musicPlayer.getNextTrack().name;
+                        artist = musicPlayer.getNextTrack().artist;
+                        urlString = musicPlayer.getNextTrack().albumImgLink;
+                        log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
+                        updateSongInfo();
+                    }
+                }
+            }
+        };
+
     }
 
     public void setAlbumImage(){
@@ -209,8 +230,8 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                // musicPlayer.next();
                 try{
                     name = musicPlayer.getNextTrack().name;
-                    artist = musicPlayer.getNextTrack().artists.get(0).name;
-                    urlString = musicPlayer.getNextTrack().album.images.get(0).url;
+                    artist = musicPlayer.getNextTrack().artist;
+                    urlString = musicPlayer.getNextTrack().albumImgLink;
                     log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;
@@ -227,8 +248,8 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             case R.id.btnPrevSong:
                 try{
                     name = musicPlayer.getPrevTrack().name;
-                    artist = musicPlayer.getPrevTrack().artists.get(0).name;
-                    urlString = musicPlayer.getPrevTrack().album.images.get(0).url;
+                    artist = musicPlayer.getPrevTrack().artist;
+                    urlString = musicPlayer.getPrevTrack().albumImgLink;
                     log.logMessage(TAG,"Previous SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;

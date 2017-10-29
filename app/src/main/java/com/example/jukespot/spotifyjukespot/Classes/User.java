@@ -10,7 +10,7 @@ public class User {
     private String userName = "";
     private String password = "";
     private String sessionToken;
-    private String typeOfUser ="";
+    private UserType typeOfUser;
     //make a type of user creator or subscriber
     private User(){};
 
@@ -18,11 +18,11 @@ public class User {
         return instance;
     }
 
-    public String getTypeOfUser() {
+    public UserType getTypeOfUser() {
         return typeOfUser;
     }
 
-    public void setTypeOfUser(String typeOfUser) {
+    public void setTypeOfUser(UserType typeOfUser) {
         this.typeOfUser = typeOfUser;
     }
 

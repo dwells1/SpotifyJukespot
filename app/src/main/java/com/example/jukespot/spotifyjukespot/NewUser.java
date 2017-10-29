@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.GravityCompat;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -51,6 +53,16 @@ public class NewUser extends Activity {
 
         rfit = RetrofitClient.getInstance();
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if((keyCode == KeyEvent.KEYCODE_BACK)){
+            Intent LoginIntent = new Intent(this, Login.class);
+            startActivity(LoginIntent);
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     private void initFields(){
         edNewLoginName = (EditText) findViewById(R.id.edNewLoginName);
