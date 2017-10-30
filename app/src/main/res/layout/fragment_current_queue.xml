@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:id="@+id/queueHeader"
         android:layout_width="wrap_content"
@@ -21,7 +20,7 @@
         android:layout_marginTop="90dp"
         android:text="Display Previously Played"/>
     <ListView
-        android:id="@+id/currentQueueList"
+        android:id="@+id/queueList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="150dp"

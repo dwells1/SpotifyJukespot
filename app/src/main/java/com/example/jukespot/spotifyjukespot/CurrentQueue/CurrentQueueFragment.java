@@ -1,21 +1,28 @@
 package com.example.jukespot.spotifyjukespot.CurrentQueue;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
+
+import java.util.List;
 
 
 /**
@@ -33,10 +40,14 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
     private Logging log;
     private TextView queueHeader;
     private Button btnWhichQueue;
-    private ListView currentQueueList;
+    private ListView queueList;
     private MusicPlayer musicPlayer;
-
+    private PopupMenu songPopUp;
+    private SimpleTrack trackChosen;
+    private QueueType currentQueueType;
     private View view;
+    private List <SimpleTrack> currentQueue;
+
 
     public CurrentQueueFragment() {
         // Required empty public constructor
@@ -59,26 +70,72 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_current_queue, container, false);
+        queueHeader = view.findViewById(R.id.queueHeader);
         initButton();
         musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
         initListView();
         return view;
 
     }
+
     public void initButton(){
         btnWhichQueue = view.findViewById(R.id.btnWhichQueue);
         btnWhichQueue.setOnClickListener(this);
     }
 
     public void initListView(){
-       // List<Track>
+        updateList(QueueType.CURRENT_QUEUE);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    public void updateList(QueueType qType){
+        currentQueueType = qType;
+        if(qType == QueueType.CURRENT_QUEUE){
+            currentQueue = musicPlayer.getCurrentQueue();
+        }else if (qType == QueueType.PREV_QUEUE){
+            currentQueue = musicPlayer.getPrevQueue();
         }
+        if(currentQueue.isEmpty()){
+            log.logMessage(TAG, "***Queue empty***");
+        }
+        QueueListAdapter qAdapter = new QueueListAdapter(getActivity(), currentQueue);
+        queueList = view.findViewById(R.id.queueList);
+        queueList.setAdapter(qAdapter);
+        queueList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                trackChosen = (SimpleTrack) queueList.getItemAtPosition(position);
+                log.logMessage(TAG, "Item Clicked: " + trackChosen.name + " by " + trackChosen.artist);
+                showPopUp(view);
+            }
+        });
+    }
+
+    public void showPopUp(View anchor){
+        songPopUp = new PopupMenu(this.getActivity(), anchor);
+        songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
+        songPopUp.getMenu().add("Remove From Queue");
+        songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(false);
+        songPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                String itemChosen = item.getTitle().toString();
+                switch(itemChosen){
+                    case "Remove From Queue":
+                        /*TODO: add functionality to remove from queue*/
+                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackChosen.name);
+                        break;
+                    case "Play Now":
+                        musicPlayer.queueAtPosition(0, trackChosen);
+                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackChosen.name);
+                        break;
+                    default:
+                        break;
+
+                }
+                return true;
+            }
+        });
+        songPopUp.show();
     }
 
     @Override
@@ -105,10 +162,15 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
             case R.id.btnWhichQueue:
                 if(btnWhichQueue.getText().equals("Display Previously Played")){
                     log.logMessage(TAG,"Display Previously Played pressed");
+                    queueHeader.setText("Previously Played");
                     btnWhichQueue.setText("Display Current Queue");
+                    updateList(QueueType.PREV_QUEUE);
+
                 }else if(btnWhichQueue.getText().equals("Display Current Queue")){
                     log.logMessage(TAG,"Display Current Queue pressed");
+                    queueHeader.setText("Current Queue");
                     btnWhichQueue.setText("Display Previously Played");
+                    updateList(QueueType.CURRENT_QUEUE);
                 }
         }
     }

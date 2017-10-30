@@ -38,15 +38,9 @@ public class SearchFragment extends Fragment implements Search.View{
     // TODO: Rename parameter arguments, choose names that match
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
     private static final String KEY_CURRENT_QUERY = "CURRENT_QUERY";
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private Logging log;
     private static final String TAG = SearchFragment.class.getSimpleName();
     private User user;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
     private Search.ActionListener mActionListener;
@@ -80,21 +74,9 @@ public class SearchFragment extends Fragment implements Search.View{
             mActionListener.loadMoreResults();
         }
     }
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static SearchFragment newInstance(String param1, String param2) {
         SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -102,10 +84,6 @@ public class SearchFragment extends Fragment implements Search.View{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         user = User.getInstance();
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         log = new Logging();
         musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
         log.logMessage(TAG,user.getPassword());
