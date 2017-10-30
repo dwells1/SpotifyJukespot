@@ -28,6 +28,7 @@ import android.util.Log;
 import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
+import com.example.jukespot.spotifyjukespot.Location.LocationActivity;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
@@ -100,13 +101,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setHomeButtonEnabled(true);
     }
 
-    /*Location Stuff*/
-    /** Called when the user taps the Send button */
-    public void sendMessage (View view){
-        Intent intent = new Intent(this, GoogleLocActivity.class);
-        startActivity(intent);
-    }
-
     /*music player functions*/
     public void initPlayer(){
         Config playerConfig = new Config(this, token, CLIENT_ID);
@@ -136,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     public void addItemsToDrawerMenu() {
         if(user.getTypeOfUser().equals("Creator"))  {
             mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
-                "Currently Playing", "End Current Jukebox", "Logout"};
+                "Currently Playing", "End Current Jukebox", "View JukeSpots", "Logout"};
         }   else{
              mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                  "Currently Playing", "Leave Jukebox", "Logout"};
@@ -185,6 +179,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }else{
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
+        }else if(currentSelectionFromMenuTitle.equals("View JukeSpots")){
+            Intent intent = new Intent(this, LocationActivity.class);
+            startActivity(intent);
+
         }else if(currentSelectionFromMenuTitle.equals("End Current Jukebox")){
             createAlert("Are you sure you want to end current jukebox?");
 

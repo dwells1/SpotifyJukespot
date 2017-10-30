@@ -5,5 +5,5 @@ package com.example.jukespot.spotifyjukespot.Classes;
  */
 
 public enum ViewTypeFragments {
-    SEARCH_VIEW,CURRENT_QUEUE, CURRENTLY_PLAYING,END_CURRENT_JUKEBOX
+    SEARCH_VIEW,CURRENT_QUEUE, CURRENTLY_PLAYING,VIEW_JUKESPOTS,END_CURRENT_JUKEBOX
 }
