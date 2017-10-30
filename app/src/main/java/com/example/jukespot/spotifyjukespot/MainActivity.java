@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 "Currently Playing", "End Current Jukebox", "View JukeSpots", "Logout"};
         }   else{
              mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
-                 "Currently Playing", "Leave Jukebox", "Logout"};
+                 "Currently Playing", "Leave Jukebox","View JukeSpots", "Logout"};
         }
 
         menuAdaptor = new ArrayAdapter<String>(this,
