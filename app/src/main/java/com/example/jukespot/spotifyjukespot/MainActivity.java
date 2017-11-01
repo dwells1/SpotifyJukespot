@@ -57,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private String token;
     private MusicPlayer musicPlayer;
     private FragmentManager manager;
-    private CurrentlyPlayingFragment currentPlayingFrag;
 
     boolean isConfirmed;
     @SuppressWarnings("SpellCheckingInspection")

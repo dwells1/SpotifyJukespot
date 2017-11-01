@@ -114,19 +114,38 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         songPopUp = new PopupMenu(this.getActivity(), anchor);
         songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
         songPopUp.getMenu().add("Remove From Queue");
-        songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(false);
+        /* check current queue being displayed */
+        switch (currentQueueType){
+            case CURRENT_QUEUE:
+                songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(false);
+                break;
+            case PREV_QUEUE:
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(true);
+                break;
+        }
+
         songPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                String itemChosen = item.getTitle().toString();
+            public boolean onMenuItemClick(MenuItem menuOption) {
+                String itemChosen = menuOption.getTitle().toString();
+                /*check user menu choices*/
                 switch(itemChosen){
                     case "Remove From Queue":
                         /*TODO: add functionality to remove from queue*/
-                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackChosen.name);
+                        musicPlayer.removeFromQueue(trackChosen);
+                        updateList(currentQueueType);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
                         break;
                     case "Play Now":
                         musicPlayer.queueAtPosition(0, trackChosen);
-                        log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackChosen.name);
+                        updateList(currentQueueType);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
+                        break;
+                    case "Add to Queue":
+                        musicPlayer.queue(trackChosen);
+                        updateList(currentQueueType);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
                         break;
                     default:
                         break;

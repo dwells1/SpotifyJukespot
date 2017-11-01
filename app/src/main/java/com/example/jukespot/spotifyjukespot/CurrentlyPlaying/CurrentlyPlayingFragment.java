@@ -100,28 +100,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             log.logErrorNoToast(TAG,"null Music Player returned");
             updateSongInfo();
         }
-
         return view;
-    }
-    public void checkWhenSongEnds(){
-        new AsyncTask<Void, Void, Void>(){
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                while(true){
-                    PlayerEvent playerEvent = musicPlayer.getCurrentEvent();
-                    if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyAudioDeliveryDone)){
-                        log.logMessage(TAG, "UPDATING!!!!");
-                        name = musicPlayer.getNextTrack().name;
-                        artist = musicPlayer.getNextTrack().artist;
-                        urlString = musicPlayer.getNextTrack().albumImgLink;
-                        log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
-                        updateSongInfo();
-                    }
-                }
-            }
-        };
-
     }
 
     public void setAlbumImage(){
@@ -167,9 +146,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         txtSongArtist = view.findViewById(R.id.txtSongArtist);
         txtSongTitle = view.findViewById(R.id.txtSongTitle);
     }
+
     public void initAlbumCover(){
         albumCoverView = view.findViewById(R.id.albumCoverImg);
     }
+
     public void showButtons(){
         btnPlayPause.setVisibility(View.VISIBLE);
         btnNext.setVisibility(View.VISIBLE);
@@ -214,6 +195,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                     btnPlayPause.setText("Pause");
                     musicPlayer.next();
                 }catch(NullPointerException | IndexOutOfBoundsException noNextTrack){
+                    noNextTrack.printStackTrace();
                     log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
                     updateSongInfo();
                     break;
@@ -241,6 +223,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         ((MainActivity) getActivity()).getMusicPlayer();
 
     }
+
     public void updateSongInfo(){
         isSongPlaying = musicPlayer.isPlaying();
         isSongPaused =musicPlayer.getIsPaused();
