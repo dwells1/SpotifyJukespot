@@ -23,19 +23,25 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.util.Log;
 
+import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
 import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
+import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
 import com.google.android.gms.location.FusedLocationProviderClient;
 
 /*music player imports*/
 import com.spotify.sdk.android.player.Config;
+
+import java.util.List;
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener,
@@ -66,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     private static final int REQUEST_CODE = 1337;
     private User user;
+    private ServicesGateway gateway;
     /* NOTE: When Changing fragments update current viewtype
      * and check if current view type is the same as the new viewtype
      * implemented for search and current queue look there
@@ -76,12 +83,13 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         setContentView(R.layout.activity_main);
         manager = getSupportFragmentManager();
         user = User.getInstance();
+        gateway = ServicesGateway.getInstance();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("EXTRA_TOKEN");
             //if(user.getTypeOfUser().equals("Creator"))
             initPlayer();
-            Log.d(TAG,token);
+//            Log.d(TAG,token);
             //The key argument here must match that used in the other activity
         }
 
@@ -94,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setHomeButtonEnabled(true);
     }
 
-    /*Location Stuff*/
+    /*LocationClass Stuff*/
     /** Called when the user taps the Send button */
     public void sendMessage (View view){
         Intent intent = new Intent(this, GoogleLocActivity.class);
@@ -115,13 +123,15 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }
         return musicPlayer;
     }
+
     public void initDrawerLayout(){
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         currentActivityTitle = getTitle().toString();
     }
+
     public void addItemsToDrawerMenu() {
-        if(user.getTypeOfUser().equals("Creator"))  {
+        if(user.getTypeOfUser().equals(UserType.CREATOR))  {
             mainUserOptionsForDrawer = new String[]{"Search", "Current Queue",
                 "Currently Playing", "End Current Jukebox", "Logout"};
         }   else{
@@ -142,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         });
     }
-
 
     public void selectMenuItem(int position){
         Fragment currentFrag = null;
@@ -190,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     }
 
-
     public void createAlert(final String message){
 
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
@@ -207,9 +215,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                     log.logMessage(TAG, "pressed leave current jukebox");
                     Toast.makeText(getApplicationContext(), "Jukebox Ended", Toast.LENGTH_SHORT).show();
                     musicPlayer.endCurrentPlayer();
-                    Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
-                    startActivity(jukeboxOptionsIntent);
-                    finish();
+                    setDiscoverable();
                 }
                 if (message.equals("Are you sure you want to logout?")){
                     //Creator and subcriber have the same behavior for now.
@@ -221,9 +227,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                         }catch(NullPointerException e) {
                          log.logMessage(TAG, "Music Player was not initialize before login out");
                         }
-                        Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
-                          startActivity(jukeboxLoginIntent);
-                          finish();
+                    Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
+                    startActivity(jukeboxLoginIntent);
+                    finish();
                 }
                 if(message.equals("Are you sure you want to leave current jukebox?")){
                     //Subscriber
@@ -283,7 +289,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         menuDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.addDrawerListener(menuDrawerToggle);
     }
-
 
     public void setFirstFragment(){
         Fragment currentFrag = new SearchFragment();
@@ -352,11 +357,38 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             openChosenFrag(current);
         }
     }
+
     public void updateCurrentViewType(ViewTypeFragments current){
         currentFragmentView = current;
     }
+
     public ViewTypeFragments getCurrentFrgament() {
         return currentFragmentView;
     }
 
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void setDiscoverable(){
+        gateway.setListener(new ServiceGatewayListener() {
+            @Override
+            public void onSuccess() {
+                Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
+                startActivity(jukeboxOptionsIntent);
+                finish();
+            }
+
+            @Override
+            public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
+
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+        gateway.setDiscoverable(this,Discoverable.N);
+    }
 }

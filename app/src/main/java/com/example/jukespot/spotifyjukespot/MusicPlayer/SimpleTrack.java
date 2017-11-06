@@ -5,17 +5,17 @@ package com.example.jukespot.spotifyjukespot.MusicPlayer;
  */
 
 public class SimpleTrack {
-    public String name;
+    public String song_name;
     public String artist;
     public String uri;
-    public String albumImgLink;
+    public String album_image_link;
 
     public SimpleTrack(String trackName, String trackArtist
-            , String trackUri, String albumImgLink) {
-        this.name = trackName;
+            , String trackUri, String album_image_link) {
+        this.song_name = trackName;
         this.artist = trackArtist;
         this.uri = trackUri;
-        this.albumImgLink = albumImgLink;
+        this.album_image_link = album_image_link;
     }
 
     public void setTrackArtist(String trackArtist) {
@@ -26,13 +26,12 @@ public class SimpleTrack {
         this.uri = trackUri;
     }
 
-    public void setAlbumImgLink(String albumImgLink) {
-        this.albumImgLink = albumImgLink;
+    public void setAlbum_image_link(String album_image_link) {
+        this.album_image_link = album_image_link;
     }
 
-
     public void setTrackName(String trackName) {
-        this.name = trackName;
+        this.song_name = trackName;
     }
 }
 

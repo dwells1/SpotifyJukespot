@@ -3,7 +3,6 @@ package com.example.jukespot.spotifyjukespot.CurrentlyPlaying;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,8 +18,6 @@ import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.R;
-import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -185,9 +182,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             case R.id.btnNextSong:
                // musicPlayer.next();
                 try{
-                    name = musicPlayer.getNextTrack().name;
+                    name = musicPlayer.getNextTrack().song_name;
                     artist = musicPlayer.getNextTrack().artist;
-                    urlString = musicPlayer.getNextTrack().albumImgLink;
+                    urlString = musicPlayer.getNextTrack().album_image_link;
                     log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;
@@ -204,9 +201,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
             case R.id.btnPrevSong:
                 try{
-                    name = musicPlayer.getPrevTrack().name;
+                    name = musicPlayer.getPrevTrack().song_name;
                     artist = musicPlayer.getPrevTrack().artist;
-                    urlString = musicPlayer.getPrevTrack().albumImgLink;
+                    urlString = musicPlayer.getPrevTrack().album_image_link;
                     log.logMessage(TAG,"Previous SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;
@@ -278,7 +275,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        // TODO: Update argument type and song_name
         void onFragmentInteraction(Uri uri);
     }
 }

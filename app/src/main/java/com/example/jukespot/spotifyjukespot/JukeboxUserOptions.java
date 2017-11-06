@@ -2,10 +2,14 @@ package com.example.jukespot.spotifyjukespot;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -13,17 +17,27 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
-import com.example.jukespot.spotifyjukespot.Classes.UserType;
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.WebServices.RetrofitClient;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
+import com.example.jukespot.spotifyjukespot.WebServices.UserApiService;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class JukeboxUserOptions extends Activity {
     private Button btnCreateJukebox;
     private Button btnJoinJukebox;
     private Button btnLogoutJukebox;
     private User user;
     boolean isConfirmed;
+    private Intent i;
     Logging log;
     private static final String TAG = JukeboxUserOptions.class.getSimpleName();
 
@@ -34,14 +48,29 @@ public class JukeboxUserOptions extends Activity {
 
     private static final int REQUEST_CODE = 1337;
 
+    private RetrofitClient rfit;
+    private UserApiService client;
+    private ServicesGateway gateway;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log = new Logging();
         user= User.getInstance();
+        gateway = ServicesGateway.getInstance();
+
+        rfit = RetrofitClient.getInstance();
 
         initJukeboxButtons();
         setContentView(R.layout.activity_jukebox_user_options);
+
+        if(!runtime_permissions()){
+            i = new Intent(this,LocationIntentServices.class);
+            startService(i);
+        }
+        gateway.updateUser(this);
+
+        getUser(user.getSessionToken());
     }
 
     public void initJukeboxButtons(){
@@ -50,23 +79,44 @@ public class JukeboxUserOptions extends Activity {
         btnLogoutJukebox = (Button) findViewById(R.id.bLogout);
     }
 
+    public void getUser(final String token){
+        final Context con  = this;
+        client = rfit.getClient(getString(R.string.web_service_url)).create(UserApiService.class);
+        Call<ResponseBody> call = client.getUser(token);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response!=null) {
+                    log.logMessage(TAG,"User info is " +
+                            response.raw());
+                }else{
+                    log.logMessageWithToast(con ,TAG,"Incorrect session token");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                log.logMessage(TAG,"login failed");
+            }
+        });
+    }
+
     public void onStartNewJukeboxClicked(View view){
         log.logMessage(TAG,"START NEW PRESSED");
         openSpotifyLogin("CREATE");
     }
 
-
     public void onJoinJukeboxClicked(View view){
         log.logMessage(TAG,"JOIN JUKE PRESSED");
         openSpotifyLogin("JOIN");
 
-    }// end onJoinJukeboxClicked
+    }
 
     public void onLogoutJukeboxClicked(View view){
         log.logMessage(TAG,"LOGOUT JUKE PRESSED");
         createAlert("Are you sure you want to logout?");
-
     }
+
     public void createAlert(final String message){
 
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
@@ -116,7 +166,6 @@ public class JukeboxUserOptions extends Activity {
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }else{
-            //startMainActivity(loginToken);
             if(pressed.equals("CREATE")){
                 user.setTypeOfUser(UserType.CREATOR);
                 startCreatorJukeboxOptions(loginToken);
@@ -136,11 +185,15 @@ public class JukeboxUserOptions extends Activity {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             switch (response.getType()) {
-                // Response was successful and contains auth token
+                // JukeResponse was successful and contains auth token
                 case TOKEN:
                     log.logMessageWithToast(this,TAG,"Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
-                    startCreatorJukeboxOptions(response.getAccessToken());
+
+                    if(user.getTypeOfUser() == UserType.CREATOR)
+                        startCreatorJukeboxOptions(response.getAccessToken());
+                    else
+                        startJoinJukeboxOptions(response.getAccessToken());
                     break;
 
                 // Auth flow returned an error
@@ -162,12 +215,37 @@ public class JukeboxUserOptions extends Activity {
         startActivity(jukeboxCreatorOptionsIntent);
         finish();
     }
+
     private void startJoinJukeboxOptions(String token){
+        startService(i);
         Intent jukeboxSubscriberOptionsIntent = new Intent(this,
                 JoinJukebox.class);
         jukeboxSubscriberOptionsIntent.putExtra("EXTRA_TOKEN", token);
         startActivity(jukeboxSubscriberOptionsIntent);
         finish();
+    }
+
+    private boolean runtime_permissions() {
+        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},100);
+
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100){
+            if( grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                Intent i = new Intent(this,LocationIntentServices.class);
+                startService(i);
+            }else {
+                runtime_permissions();
+            }
+        }
     }
 
 }// end class

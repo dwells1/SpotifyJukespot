@@ -1,6 +1,5 @@
 package com.example.jukespot.spotifyjukespot.CurrentQueue;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -104,7 +102,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 trackChosen = (SimpleTrack) queueList.getItemAtPosition(position);
-                log.logMessage(TAG, "Item Clicked: " + trackChosen.name + " by " + trackChosen.artist);
+                log.logMessage(TAG, "Item Clicked: " + trackChosen.song_name + " by " + trackChosen.artist);
                 showPopUp(view);
             }
         });
@@ -135,17 +133,17 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
                         /*TODO: add functionality to remove from queue*/
                         musicPlayer.removeFromQueue(trackChosen);
                         updateList(currentQueueType);
-                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Play Now":
                         musicPlayer.queueAtPosition(0, trackChosen);
                         updateList(currentQueueType);
-                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Add to Queue":
                         musicPlayer.queue(trackChosen);
                         updateList(currentQueueType);
-                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.name);
+                        log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     default:
                         break;
@@ -205,7 +203,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        // TODO: Update argument type and song_name
         void onFragmentInteraction(Uri uri);
     }
 }

@@ -3,7 +3,6 @@ package com.example.jukespot.spotifyjukespot.CurrentQueue;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
@@ -49,9 +47,9 @@ public class QueueListAdapter extends ArrayAdapter<SimpleTrack>  {
         TextView trackSubtitle = rowView.findViewById(R.id.entity_subtitle);
         albumArtView = rowView.findViewById(R.id.entity_image);
 
-        trackTitle.setText(trackList.get(position).name);
+        trackTitle.setText(trackList.get(position).song_name);
         trackSubtitle.setText(trackList.get(position).artist);
-        imageUrl = trackList.get(position).albumImgLink;
+        imageUrl = trackList.get(position).album_image_link;
         Bitmap albumCoverBitmap = downloadImage();
         if(albumCoverBitmap != null)
             albumArtView.setImageBitmap(albumCoverBitmap);

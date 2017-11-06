@@ -7,7 +7,6 @@ import android.util.Log;
 import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
@@ -20,8 +19,6 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by Lino on 9/29/2017.
@@ -79,7 +76,7 @@ public class MusicPlayer implements MusicPlayerInterface
     @Override
     public void play(SimpleTrack trackToPlay) {
         spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
-        log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.name);
+        log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.song_name);
     }
 
     @Override
@@ -99,7 +96,7 @@ public class MusicPlayer implements MusicPlayerInterface
         if(position == 0 ) {
             play(trackToQueue);
         }
-        log.logMessage(TAG,"Add " + trackToQueue.name + " at Position : " + position);
+        log.logMessage(TAG,"Add " + trackToQueue.song_name + " at Position : " + position);
         printCurrentQueue();
     }
     public void removeFromQueue(SimpleTrack toRemove){
@@ -116,7 +113,7 @@ public class MusicPlayer implements MusicPlayerInterface
 
         log.logMessage(TAG,"Current Queue: ");
         for (SimpleTrack t : currentQueue ){
-            log.logMessage(TAG, "track: " + t.name);
+            log.logMessage(TAG, "track: " + t.song_name);
         }
     }
     public boolean doesCurrentQueueHaveSpace(){

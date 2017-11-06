@@ -75,12 +75,12 @@ public class GoogleLocActivity extends AppCompatActivity {
     private final static String KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string";
 
     /**
-     * Provides access to the Fused Location Provider API.
+     * Provides access to the Fused LocationClass Provider API.
      */
     private FusedLocationProviderClient mFusedLocationClient;
 
     /**
-     * Provides access to the Location Settings API.
+     * Provides access to the LocationClass Settings API.
      */
     private SettingsClient mSettingsClient;
 
@@ -96,7 +96,7 @@ public class GoogleLocActivity extends AppCompatActivity {
     private LocationSettingsRequest mLocationSettingsRequest;
 
     /**
-     * Callback for Location events.
+     * Callback for LocationClass events.
      */
     private LocationCallback mLocationCallback;
 
@@ -206,7 +206,7 @@ public class GoogleLocActivity extends AppCompatActivity {
      * the AndroidManifest.xml.
      * <p/>
      * When the ACCESS_FINE_LOCATION setting is specified, combined with a fast update
-     * interval (5 seconds), the Fused Location Provider API returns location updates that are
+     * interval (5 seconds), the Fused LocationClass Provider API returns location updates that are
      * accurate to within a few feet.
      * <p/>
      * These settings are appropriate for mapping applications that show real-time location
@@ -340,7 +340,7 @@ public class GoogleLocActivity extends AppCompatActivity {
                         switch (statusCode) {
                             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
 
-                                Log.i(TAG, "Location settings are not satisfied. Attempting to upgrade " +
+                                Log.i(TAG, "LocationClass settings are not satisfied. Attempting to upgrade " +
                                         "location settings ");
 
                                 try {
@@ -357,7 +357,7 @@ public class GoogleLocActivity extends AppCompatActivity {
                                 break;
 
                             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be " +
+                                String errorMessage = "LocationClass settings are inadequate, and cannot be " +
                                         "fixed here. Fix in Settings.";
 
                                 Log.e(TAG, errorMessage);

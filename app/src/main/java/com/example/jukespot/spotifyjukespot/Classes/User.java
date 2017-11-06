@@ -1,20 +1,31 @@
 package com.example.jukespot.spotifyjukespot.Classes;
 
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
+
 /**
  * Created by Alex on 9/20/2017.
  */
 
 public class User {
 
-    private static User instance = new User();
+    private static User instance = null;
     private String userName = "";
     private String password = "";
     private String sessionToken;
     private UserType typeOfUser;
+    private Double latitude = 0.0;
+    private Double longitude = 0.0;
     //make a type of user creator or subscriber
-    private User(){};
+    private User() {
+        sessionToken = null;
+        typeOfUser = null;
+    }
 
     public static User getInstance(){
+        if(instance == null){
+            instance = new User();
+
+        }
         return instance;
     }
 
@@ -50,5 +61,21 @@ public class User {
 
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

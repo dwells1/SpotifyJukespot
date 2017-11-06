@@ -25,6 +25,8 @@ import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
 import com.example.jukespot.spotifyjukespot.ResultListScrollListener;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
+import com.google.gson.Gson;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +60,7 @@ public class SearchFragment extends Fragment implements Search.View{
     private String trackName;
     private String trackArtist;
     private MusicPlayer musicPlayer;
+    private ServicesGateway gateway;
 
     public SearchFragment() {
         // Required empty public constructor
@@ -84,6 +87,8 @@ public class SearchFragment extends Fragment implements Search.View{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         user = User.getInstance();
+        gateway = ServicesGateway.getInstance();
+
         log = new Logging();
         musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
         log.logMessage(TAG,user.getPassword());
@@ -138,7 +143,7 @@ public class SearchFragment extends Fragment implements Search.View{
             @Override
             public void onItemSelected(View itemView, Track item) {
                 mActionListener.selectTrack(item);
-                /*set song variables name, artist, and song itself*/
+                /*set song variables song_name, artist, and song itself*/
                 TextView songTitleView = (TextView) itemView.findViewById(R.id.entity_title);
                 TextView artistView = (TextView) itemView.findViewById(R.id.entity_subtitle);
                 trackChosenInSearch = item;
@@ -185,15 +190,18 @@ public class SearchFragment extends Fragment implements Search.View{
                     case "Add to Queue":
                         if(musicPlayer.getQueue().isEmpty()){
                             musicPlayer.queueAtPosition(0,trackConverted);
+                            //gateway.modifySongPlaylist(getActivity(),trackConverted);
                             //musicPlayer.play(trackChosenInSearch);
                         }else{
                             musicPlayer.queue(trackConverted);
+                            //gateway.modifySongPlaylist(getActivity(),trackConverted);
                         }
 
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
                         musicPlayer.queueAtPosition(0, trackConverted);
+                        //gateway.modifySongPlaylist(getActivity(),trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     default:
@@ -251,7 +259,7 @@ public class SearchFragment extends Fragment implements Search.View{
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        // TODO: Update argument type and song_name
         void onFragmentInteraction(Uri uri);
     }
 }

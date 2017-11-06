@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot;
+package com.example.jukespot.spotifyjukespot.WebServices;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -13,17 +12,15 @@ import android.widget.EditText;
 import com.example.jukespot.spotifyjukespot.Classes.LoginResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.WebServices.RetrofitClient;
+import com.example.jukespot.spotifyjukespot.WebServices.UserApiService;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by nique on 10/3/2017.
+ * Created by Dominique on 10/3/2017.
  */
 
 public class NewUser extends Activity {
@@ -62,7 +59,6 @@ public class NewUser extends Activity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
     private void initFields(){
         edNewLoginName = (EditText) findViewById(R.id.edNewLoginName);
@@ -137,7 +133,6 @@ public class NewUser extends Activity {
     }
 
     private String buildJsonObject(String user, String password, String userName, String email){
-
         String json = "{\"login\":\""+user+"\",\"pw_hash\":\""+password+"\"," +
                 "\"user_name\":\""+userName+"\",\"email\":\""+email+"\"}";
         log.logMessage(TAG,json);
@@ -149,4 +144,5 @@ public class NewUser extends Activity {
         startActivity(jukeboxOptionsIntent);
         finish();
     }
+
 }

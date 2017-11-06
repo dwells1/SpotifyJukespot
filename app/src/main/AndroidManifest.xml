@@ -26,16 +26,22 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".JukeboxUserOptions" />
         <activity android:name=".NewUser" />
         <activity android:name=".JukeboxCreationOptions" />
         <activity android:name=".JoinJukebox" />
-        <activity android:name=".GoogleLocActivity"></activity>
+        <activity android:name=".GoogleLocActivity" />
 
-        <service android:name=".MusicPlayer.MusicPlayerService"/>
+        <service android:name=".MusicPlayer.MusicPlayerService" />
+        <service
+            android:name=".LocationService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".LocationIntentServices"
+            android:exported="false"></service>
     </application>
 
 </manifest>
