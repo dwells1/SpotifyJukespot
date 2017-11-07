@@ -182,6 +182,7 @@ public class SearchFragment extends Fragment implements Search.View{
     public void showPopUp(View anchor){
         songPopUp = new PopupMenu(this.getActivity(), anchor);
         songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
+        validateUserPermissions();
         songPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -213,7 +214,26 @@ public class SearchFragment extends Fragment implements Search.View{
         });
         songPopUp.show();
     }
-
+    public void validateUserPermissions(){
+        switch(user.getUserPermissions()){
+            case CAN_PLAY_NO_EDIT:
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                break;
+            case CAN_PLAY_AND_EDIT:
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(false);
+                break;
+            case CAN_EDIT_NO_PLAY:
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                break;
+            case NO_EDIT_NO_PLAY:
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(false);
+                break;
+        }
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

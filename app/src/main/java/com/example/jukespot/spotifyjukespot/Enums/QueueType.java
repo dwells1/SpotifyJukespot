@@ -1,4 +1,4 @@
-package com.example.jukespot.spotifyjukespot.CurrentQueue;
+package com.example.jukespot.spotifyjukespot.Enums;
 
 /**
  * Created by Lino on 10/29/2017.

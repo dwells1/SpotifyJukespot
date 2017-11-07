@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.QueueType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
@@ -36,6 +38,8 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
     private OnFragmentInteractionListener mListener;
     private static final String TAG = CurrentQueueFragment.class.getSimpleName();
     private Logging log;
+    private User user;
+
     private TextView queueHeader;
     private Button btnWhichQueue;
     private ListView queueList;
@@ -61,6 +65,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log = new Logging();
+        user = User.getInstance();
     }
 
     @Override
@@ -112,16 +117,8 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         songPopUp = new PopupMenu(this.getActivity(), anchor);
         songPopUp.getMenuInflater().inflate(R.menu.song_pressed_menu, songPopUp.getMenu());
         songPopUp.getMenu().add("Remove From Queue");
-        /* check current queue being displayed */
-        switch (currentQueueType){
-            case CURRENT_QUEUE:
-                songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(false);
-                break;
-            case PREV_QUEUE:
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(R.id.btnAddQueueMenu).setVisible(true);
-                break;
-        }
+        /* check user's permissions */
+        validateUserPermissions();
 
         songPopUp.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -154,7 +151,33 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         });
         songPopUp.show();
     }
+    public void validateUserPermissions(){
+        switch(user.getUserPermissions()){
+            case CAN_EDIT_NO_PLAY:
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                break;
+            case CAN_PLAY_NO_EDIT:
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                break;
+            case CAN_PLAY_AND_EDIT:
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().findItem(0).setVisible(true);
+                break;
+            case NO_EDIT_NO_PLAY:
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().findItem(0).setVisible(false);
+                break;
+        }
 
+        if(currentQueueType.equals(QueueType.PREV_QUEUE))
+            songPopUp.getMenu().getItem(0).setVisible(false);
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

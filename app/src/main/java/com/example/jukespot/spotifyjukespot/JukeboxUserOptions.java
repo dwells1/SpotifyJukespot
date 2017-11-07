@@ -17,6 +17,7 @@ import android.widget.Toast;
 import java.util.concurrent.TimeUnit;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.UserPermissions;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.WebServices.RetrofitClient;
@@ -168,9 +169,11 @@ public class JukeboxUserOptions extends Activity {
         }else{
             if(pressed.equals("CREATE")){
                 user.setTypeOfUser(UserType.CREATOR);
+                user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
                 startCreatorJukeboxOptions(loginToken);
             }else{
                 user.setTypeOfUser(UserType.SUBSCRIBER);
+                /*TODO: Determine when to set subscriber permissions!*/
                 startJoinJukeboxOptions(loginToken);
             }
 

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
@@ -38,8 +39,10 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
     private OnFragmentInteractionListener mListener;
     private Logging log;
+    private User user;
     private TextView txtSongTitle;
     private TextView txtSongArtist;
+    private TextView permissionsHeader;
     private Button btnPlayPause;
     private Button btnNext;
     private Button btnPrev;
@@ -69,6 +72,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log = new Logging();
+        user = User.getInstance();
     }
 
     @Override
@@ -79,12 +83,12 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         initButtons();
         initTextViews();
         initAlbumCover();
+        validateUserPermissions();
         try {
             musicPlayer = ((MainActivity) getActivity()).getMusicPlayer();
             isSongPlaying = musicPlayer.isPlaying();
             isSongPaused = musicPlayer.getIsPaused();
 
-            //checkWhenSongEnds();
             if(isSongPlaying || isSongPaused){
                 name = musicPlayer.getCurrentTrack().name;
                 artist = musicPlayer.getCurrentTrack().artistName;
@@ -142,12 +146,40 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     public void initTextViews(){
         txtSongArtist = view.findViewById(R.id.txtSongArtist);
         txtSongTitle = view.findViewById(R.id.txtSongTitle);
+        permissionsHeader = view.findViewById(R.id.permissionHeader);
     }
 
     public void initAlbumCover(){
         albumCoverView = view.findViewById(R.id.albumCoverImg);
     }
+    public void validateUserPermissions(){
+        switch(user.getUserPermissions()){
+            case CAN_PLAY_NO_EDIT:
+                disableAllButtons();
+                permissionsHeader.setText("You DO NOT have permission to use player");
+                break;
+            case CAN_PLAY_AND_EDIT:
+                permissionsHeader.setText("You have permission to use player");
+                break;
+            case CAN_EDIT_NO_PLAY:
+                permissionsHeader.setText("You have permission to use player");
+                break;
+            case NO_EDIT_NO_PLAY:
+                disableAllButtons();
+                permissionsHeader.setText("You DO NOT have permission to use player");
+                break;
+        }
+    }
+    public void disableAllButtons(){
+        btnPlayPause.setAlpha(.5f);
+        btnPlayPause.setClickable(false);
 
+        btnNext.setAlpha(.5f);
+        btnNext.setClickable(false);
+
+        btnPrev.setAlpha(.5f);
+        btnPrev.setClickable(false);
+    }
     public void showButtons(){
         btnPlayPause.setVisibility(View.VISIBLE);
         btnNext.setVisibility(View.VISIBLE);

@@ -65,6 +65,14 @@
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"/>
 
+    <TextView
+        android:id="@+id/permissionHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="text"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="410dp"/>
+
 
 
 </FrameLayout>

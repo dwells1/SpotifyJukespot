@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot.Classes;
 
+import com.example.jukespot.spotifyjukespot.Enums.UserPermissions;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 
 /**
@@ -13,6 +14,7 @@ public class User {
     private String password = "";
     private String sessionToken;
     private UserType typeOfUser;
+    private UserPermissions userPermissions;
     private Double latitude = 0.0;
     private Double longitude = 0.0;
     //make a type of user creator or subscriber
@@ -36,7 +38,9 @@ public class User {
     public void setTypeOfUser(UserType typeOfUser) {
         this.typeOfUser = typeOfUser;
     }
-
+    public void setUserPermissions(UserPermissions userPermissions){
+        this.userPermissions = userPermissions;
+    }
     public void setPassword(String password) {
         this.password = password;
     }
@@ -54,6 +58,9 @@ public class User {
     public String getUserName() {
 
         return userName;
+    }
+    public UserPermissions getUserPermissions(){
+        return userPermissions;
     }
     public String getSessionToken() {
         return sessionToken;
