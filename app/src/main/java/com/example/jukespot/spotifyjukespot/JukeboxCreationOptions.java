@@ -1,41 +1,56 @@
 package com.example.jukespot.spotifyjukespot;
 
+import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
 import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
+import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
+import com.example.jukespot.spotifyjukespot.Classes.LoginResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-public class JukeboxCreationOptions extends AppCompatActivity {
+import com.example.jukespot.spotifyjukespot.WebServices.RetrofitClient;
+import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
+import com.example.jukespot.spotifyjukespot.WebServices.UserApiService;
+import com.google.gson.Gson;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class JukeboxCreationOptions extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Logging log;
 
     Spinner distanceDropdownSpinner;
-    CheckBox chkPlayAutomatic;
-    CheckBox chkEditQueue;
-    EditText edJukeboxName;
-    EditText edJukeboxPassword;
+    CheckBox chkPlayAutomatic, chkEditQueue;
+    EditText edJukeboxName,edJukeboxPassword;
     Button btnStartJukebox;
 
     JukeBox jukeBox;
-    String jukeName;
-    String jukePassword;
-    String jukeDistance;
-    Boolean isQueueEditable;
-    Boolean isPlayAutomatic;
+    String jukeName, jukePassword;
+    Double jukeDistance;
+    Boolean isQueueEditable, isPlayAutomatic;
 
     String accessToken;
     private User user;
+    private RetrofitClient rfit;
+    private UserApiService client;
+    private ServicesGateway gateway;
 
     private static final String TAG = JukeboxCreationOptions.class.getSimpleName();
     static final String EXTRA_TOKEN = "EXTRA_TOKEN";
@@ -51,7 +66,10 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         initLayoutValues();
         log = new Logging();
         user = User.getInstance();
-        user.setTypeOfUser("Creator");
+        user.setTypeOfUser(UserType.CREATOR);
+
+        rfit = RetrofitClient.getInstance();
+        gateway = ServicesGateway.getInstance();
     }
 
     @Override
@@ -65,12 +83,20 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-
     public void initDistanceSpinner(){
         distanceDropdownSpinner = (Spinner) findViewById(R.id.spinnerDistanceOptions);
-        String [] distanceOptions = new String[] {"20ft","30ft","40ft"};
-        ArrayAdapter<String> distanceSpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, distanceOptions);
+        Integer [] distanceOptions = new Integer[] {30,50,80,100};
+        ArrayAdapter<Integer> distanceSpinnerAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, distanceOptions);
         distanceDropdownSpinner.setAdapter(distanceSpinnerAdapter);
+        distanceDropdownSpinner.setOnItemSelectedListener(this);
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,int pos, long id) {
+        log.logMessage(TAG,"max distance is " + parent.getItemAtPosition(pos).toString());
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     public void initLayoutValues(){
@@ -90,10 +116,10 @@ public class JukeboxCreationOptions extends AppCompatActivity {
             case R.id.chkEditQueue:
                 if (checked){
                     isQueueEditable = true;
-                    log.logMessage(TAG, "Allow Subscrivers to edit Queue True");
+                    log.logMessage(TAG, "Allow Subscribers to edit Queue True");
                 }else{
                     isQueueEditable = false;
-                    log.logMessage(TAG, "Allow Subscrivers to edit Queue False");
+                    log.logMessage(TAG, "Allow Subscribers to edit Queue False");
                 }
                 break;
             case R.id.chkPlayAutomatic:
@@ -107,6 +133,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
                 break;
         }
     }
+
     public void onStartJukeboxClicked(View view){
         //take to main activity for now
         /*TODO: Store all the setting inputted by Creator and check that they are correct*/
@@ -124,7 +151,7 @@ public class JukeboxCreationOptions extends AppCompatActivity {
          }
          jukeName = edJukeboxName.getText().toString();
          jukePassword = edJukeboxPassword.getText().toString();
-         jukeDistance = distanceDropdownSpinner.getSelectedItem().toString();
+         jukeDistance = Double.parseDouble(distanceDropdownSpinner.getSelectedItem().toString()) / 5280;
 
         if(jukePassword.equals("")){
             jukeBox = new JukeBox(jukeName,jukeDistance, isQueueEditable, isPlayAutomatic);
@@ -133,18 +160,52 @@ public class JukeboxCreationOptions extends AppCompatActivity {
         }
 
         if(jukeName.equals("")){
-            logMessage("No name inputted");
+            log.logMessage(TAG,"No song_name inputted");
         }else{
-            Intent intent = MainActivity.createIntent(this);
-            intent.putExtra(EXTRA_TOKEN, accessToken);
-            startActivity(intent);
-            finish();
+            jukeBox.setLongitude(user.getLongitude());
+            jukeBox.setLatitude(user.getLatitude());
+            gateway.setListener(new ServiceGatewayListener() {
+                @Override
+                public void onSuccess() {
+                    startJukeBox();
+                }
+                @Override
+                public void gotPlaylists(List<JukeBoxResponse> jukeboxes){
+
+                }
+                @Override
+                public  void onError(){
+
+                }
+            });
+            gateway.setDiscoverable(this, Discoverable.Y);
+
         }
     }
 
-    private void logMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, msg);
+    private void startJukeBox(){
+        gateway.setListener(new ServiceGatewayListener() {
+            @Override
+            public void onSuccess() {
+                startMainActivity();
+            }
+            @Override
+            public void gotPlaylists(List<JukeBoxResponse> jukeboxes){
+
+            }
+            @Override
+            public  void onError(){
+
+            }
+        });
+        gateway.modifyPlaylistParameters(this,jukeBox);
+    }
+
+    private void startMainActivity(){
+        Intent intent = MainActivity.createIntent(this);
+        intent.putExtra(EXTRA_TOKEN, accessToken);
+        startActivity(intent);
+        finish();
     }
 
     /*TODO: Maybe add something that tells the user what things do?*/

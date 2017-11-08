@@ -3,7 +3,6 @@ package com.example.jukespot.spotifyjukespot.CurrentlyPlaying;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,11 +14,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.R;
-import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,19 +36,13 @@ import java.net.URL;
 public class CurrentlyPlayingFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = CurrentlyPlayingFragment.class.getSimpleName();
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
     private Logging log;
+    private User user;
     private TextView txtSongTitle;
     private TextView txtSongArtist;
+    private TextView permissionsHeader;
     private Button btnPlayPause;
     private Button btnNext;
     private Button btnPrev;
@@ -63,39 +56,23 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     private Bitmap coverImg;
     private MusicPlayer musicPlayer;
 
+    private View view;
 
 
-    View view;
     public CurrentlyPlayingFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CurrentlyPlayingFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static CurrentlyPlayingFragment newInstance(String param1, String param2) {
         CurrentlyPlayingFragment fragment = new CurrentlyPlayingFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
         log = new Logging();
+        user = User.getInstance();
     }
 
     @Override
@@ -106,11 +83,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         initButtons();
         initTextViews();
         initAlbumCover();
+        validateUserPermissions();
         try {
             musicPlayer = ((MainActivity) getActivity()).getMusicPlayer();
             isSongPlaying = musicPlayer.isPlaying();
             isSongPaused = musicPlayer.getIsPaused();
-
 
             if(isSongPlaying || isSongPaused){
                 name = musicPlayer.getCurrentTrack().name;
@@ -124,7 +101,6 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             log.logErrorNoToast(TAG,"null Music Player returned");
             updateSongInfo();
         }
-
         return view;
     }
 
@@ -170,9 +146,39 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     public void initTextViews(){
         txtSongArtist = view.findViewById(R.id.txtSongArtist);
         txtSongTitle = view.findViewById(R.id.txtSongTitle);
+        permissionsHeader = view.findViewById(R.id.permissionHeader);
     }
+
     public void initAlbumCover(){
         albumCoverView = view.findViewById(R.id.albumCoverImg);
+    }
+    public void validateUserPermissions(){
+        switch(user.getUserPermissions()){
+            case CAN_PLAY_NO_EDIT:
+                disableAllButtons();
+                permissionsHeader.setText("You DO NOT have permission to use player");
+                break;
+            case CAN_PLAY_AND_EDIT:
+                permissionsHeader.setText("You have permission to use player");
+                break;
+            case CAN_EDIT_NO_PLAY:
+                permissionsHeader.setText("You have permission to use player");
+                break;
+            case NO_EDIT_NO_PLAY:
+                disableAllButtons();
+                permissionsHeader.setText("You DO NOT have permission to use player");
+                break;
+        }
+    }
+    public void disableAllButtons(){
+        btnPlayPause.setAlpha(.5f);
+        btnPlayPause.setClickable(false);
+
+        btnNext.setAlpha(.5f);
+        btnNext.setClickable(false);
+
+        btnPrev.setAlpha(.5f);
+        btnPrev.setClickable(false);
     }
     public void showButtons(){
         btnPlayPause.setVisibility(View.VISIBLE);
@@ -208,9 +214,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
             case R.id.btnNextSong:
                // musicPlayer.next();
                 try{
-                    name = musicPlayer.getNextTrack().name;
-                    artist = musicPlayer.getNextTrack().artists.get(0).name;
-                    urlString = musicPlayer.getNextTrack().album.images.get(0).url;
+                    name = musicPlayer.getNextTrack().song_name;
+                    artist = musicPlayer.getNextTrack().artist;
+                    urlString = musicPlayer.getNextTrack().album_image_link;
                     log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;
@@ -218,6 +224,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                     btnPlayPause.setText("Pause");
                     musicPlayer.next();
                 }catch(NullPointerException | IndexOutOfBoundsException noNextTrack){
+                    noNextTrack.printStackTrace();
                     log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
                     updateSongInfo();
                     break;
@@ -226,9 +233,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
             case R.id.btnPrevSong:
                 try{
-                    name = musicPlayer.getPrevTrack().name;
-                    artist = musicPlayer.getPrevTrack().artists.get(0).name;
-                    urlString = musicPlayer.getPrevTrack().album.images.get(0).url;
+                    name = musicPlayer.getPrevTrack().song_name;
+                    artist = musicPlayer.getPrevTrack().artist;
+                    urlString = musicPlayer.getPrevTrack().album_image_link;
                     log.logMessage(TAG,"Previous SONG NAME: " + name + " by " + artist);
                     updateSongInfo();
                     isSongPaused = false;
@@ -245,6 +252,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         ((MainActivity) getActivity()).getMusicPlayer();
 
     }
+
     public void updateSongInfo(){
         isSongPlaying = musicPlayer.isPlaying();
         isSongPaused =musicPlayer.getIsPaused();
@@ -299,7 +307,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
+        // TODO: Update argument type and song_name
         void onFragmentInteraction(Uri uri);
     }
 }

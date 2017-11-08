@@ -4,10 +4,9 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.jukespot.spotifyjukespot.CurrentQueueFragment;
+import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
@@ -21,28 +20,28 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
-
 /**
  * Created by Lino on 9/29/2017.
  */
 
 public class MusicPlayer implements MusicPlayerInterface
         , CurrentQueueFragment.OnFragmentInteractionListener
+        , CurrentlyPlayingFragment.OnFragmentInteractionListener
         , SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
+    private static final int MAX_PREV_QUEUE_SIZE = 15;
+    private static final int MAX_CURR_QUEUE_SIZE = 50;
     private static final String TAG = MusicPlayer.class.getSimpleName();
     Logging log = new Logging();
-
     private SpotifyPlayer spotifyPlayer;
     private Metadata playerMetadata;
     private PlaybackState playerPlaybackState;
     private PlayerEvent currentEvent;
     private boolean isPaused;
 
-    private List<Track> currentQueue;
+    private List<SimpleTrack> currentQueue;
 
     /*Set max size of prev tracks saved*/
-    private List<Track> previousTrackQueue;
+    private List<SimpleTrack> previousTrackQueue;
 
     private final Player.OperationCallback mOperationCallback = new Player.OperationCallback() {
         @Override
@@ -62,8 +61,8 @@ public class MusicPlayer implements MusicPlayerInterface
                 spotifyPlayer = spotifyPlayerToImplement;
                 spotifyPlayer.addConnectionStateCallback(MusicPlayer.this);
                 spotifyPlayer.addNotificationCallback(MusicPlayer.this);
-                currentQueue = new ArrayList<Track>();
-                previousTrackQueue = new ArrayList<Track>();
+                currentQueue = new ArrayList<SimpleTrack>();
+                previousTrackQueue = new ArrayList<SimpleTrack>();
                 //playerPlaybackState = spotifyPlayer.getPlaybackState();
             }
 
@@ -73,51 +72,73 @@ public class MusicPlayer implements MusicPlayerInterface
             }
         });
 
-        //playerMetadata = spotifyPlayer.getMetadata();
     }
     @Override
-    public void play(Track trackToPlay) {
-       // log.logMessage(TAG,"song playing: " + uri);
+    public void play(SimpleTrack trackToPlay) {
         spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
-        log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.name);
-        //printCurrentQueue();
-
-        //playerMetadata = spotifyPlayer.getMetadata();
-        //log.logMessage(TAG,"CURRENTLY PLAYING METADATA TRACK" + playerMetadata.currentTrack.name);
+        log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.song_name);
     }
+
     @Override
-    public void queue(Track track){
+    public void queue(SimpleTrack track){
         currentQueue.add(track);
         printCurrentQueue();
     }
-    public void queueAtPosition(int position, Track trackToQueue){
+
+    public void addToPrevQueue(SimpleTrack trackToAdd){
+        if(!doesPrevQueueHaveSpace())
+            previousTrackQueue.remove(0);
+        previousTrackQueue.add(trackToAdd);
+    }
+
+    public void queueAtPosition(int position, SimpleTrack trackToQueue){
         currentQueue.add(position, trackToQueue);
         if(position == 0 ) {
             play(trackToQueue);
         }
-        log.logMessage(TAG,"Add " + trackToQueue.name + " at Position : " + position);
+        log.logMessage(TAG,"Add " + trackToQueue.song_name + " at Position : " + position);
         printCurrentQueue();
     }
+    public void removeFromQueue(SimpleTrack toRemove){
+        if(currentQueue.get(0).equals(toRemove)){
+            next();
+        }
+        currentQueue.remove(toRemove);
+    }
 
-    public List<Track> getQueue(){return currentQueue;}
+    public List<SimpleTrack> getQueue(){return currentQueue;}
     public void printCurrentQueue(){
         if(currentQueue.isEmpty())
             return;
 
         log.logMessage(TAG,"Current Queue: ");
-        for (Track t : currentQueue ){
-            log.logMessage(TAG, "track: " + t.name);
+        for (SimpleTrack t : currentQueue ){
+            log.logMessage(TAG, "track: " + t.song_name);
         }
     }
+    public boolean doesCurrentQueueHaveSpace(){
+        if (currentQueue.size() >= MAX_CURR_QUEUE_SIZE)
+            return false;
+        return true;
+    }
+    public boolean doesPrevQueueHaveSpace(){
+        if (previousTrackQueue.isEmpty())
+            return true;
+        if (previousTrackQueue.size() >= MAX_PREV_QUEUE_SIZE)
+            return false;
+        return true;
+    }
+
     @Override
     public void pause() {
        spotifyPlayer.pause(mOperationCallback);
     }
 
+
     @Override
     public void next() {
         //spotifyPlayer.skipToNext(mOperationCallback);
-        previousTrackQueue.add(currentQueue.get(0));
+        addToPrevQueue(currentQueue.get(0));
         currentQueue.remove(0);
         if(!currentQueue.isEmpty()) {
             play(currentQueue.get(0));
@@ -131,7 +152,6 @@ public class MusicPlayer implements MusicPlayerInterface
         int prevQueueNdx = previousTrackQueue.size() - 1;
         queueAtPosition(0, previousTrackQueue.get(prevQueueNdx));
         previousTrackQueue.remove(prevQueueNdx);
-        //play(currentQueue.get(0));
     }
 
     @Override
@@ -157,7 +177,13 @@ public class MusicPlayer implements MusicPlayerInterface
      * SDK METADATA Which is as follows:
      *  https://spotify.github.io/android-sdk/player/com/spotify/sdk/android/player/Metadata.Track.html
      **/
+    public List<SimpleTrack> getCurrentQueue(){
+        return currentQueue;
+    }
 
+    public List<SimpleTrack> getPrevQueue(){
+        return previousTrackQueue;
+    }
     @Nullable
     @Override
     public Metadata.Track getCurrentTrack() {
@@ -165,12 +191,12 @@ public class MusicPlayer implements MusicPlayerInterface
     }
     @Nullable
     @Override
-    public Track getNextTrack() {
+    public SimpleTrack getNextTrack() {
         return currentQueue.get(1);
     }
     @Nullable
     @Override
-    public Track getPrevTrack() {
+    public SimpleTrack getPrevTrack() {
         return previousTrackQueue.get(previousTrackQueue.size() - 1 );
     }
 
@@ -187,7 +213,6 @@ public class MusicPlayer implements MusicPlayerInterface
     public void onFragmentInteraction(Uri uri) {
 
     }
-
     @Override
     public void onLoggedIn() {
         log.logMessage(TAG,"PLAYER LOGGED IN");
@@ -228,10 +253,12 @@ public class MusicPlayer implements MusicPlayerInterface
         playerPlaybackState = spotifyPlayer.getPlaybackState();
         log.logMessage(TAG, "META : " + playerMetadata );
         log.logMessage(TAG,"Playback State : " + playerPlaybackState);
+
     }
 
     @Override
     public void onPlaybackError(Error error) {
         log.logErrorNoToast(TAG,"ERROR PLAYBACK :" + error);
     }
+
 }

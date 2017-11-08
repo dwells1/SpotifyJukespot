@@ -5,56 +5,90 @@
 
     <EditText
         android:id="@+id/edNewLoginName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Login Name"
-        android:inputType="textPersonName"
-        android:layout_marginTop="15dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:inputType="text"
+        android:layout_below="@+id/LoginName"
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:id="@+id/edNewPassword"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Password"
-        android:inputType="textPersonName"
-        android:layout_alignTop="@+id/edNewLoginName"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="66dp" />
+        android:inputType="text"
+        android:layout_below="@+id/textView4"
+        android:layout_alignStart="@+id/edNewLoginName" />
 
     <EditText
         android:id="@+id/edNewUserName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="User Name (Optional)"
-        android:inputType="textPersonName"
-        android:layout_below="@+id/edNewPassword"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="45dp" />
+        android:inputType="text"
+        android:layout_below="@+id/textView5"
+        android:layout_alignStart="@+id/edNewPassword" />
 
     <EditText
         android:id="@+id/edNewEmail"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Email (Optional)"
-        android:inputType="textEmailAddress|textPersonName"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:inputType="textEmailAddress|text"
+        android:singleLine="true"
+        android:layout_below="@+id/textView6"
+        android:layout_alignStart="@+id/edNewUserName" />
 
     <Button
         android:id="@+id/bNewUser"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onCreateNewUserClicked"
         android:clickable="true"
+        android:elevation="4dp"
+        android:onClick="onCreateNewUserClicked"
         android:text="Create New User"
         android:layout_below="@+id/edNewEmail"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="57dp" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="73dp" />
+
+    <TextView
+        android:id="@+id/LoginName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Login Name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/LoginName"
+        android:layout_below="@+id/edNewLoginName"
+        android:layout_marginTop="15dp"
+        android:text="Password"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView4"
+        android:layout_below="@+id/edNewPassword"
+        android:layout_marginTop="18dp"
+        android:text="User Name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView5"
+        android:layout_below="@+id/edNewUserName"
+        android:layout_marginTop="20dp"
+        android:text="Email (optional)"
+        android:textAppearance="@style/TextAppearance.AppCompat.Caption" />
 </RelativeLayout>

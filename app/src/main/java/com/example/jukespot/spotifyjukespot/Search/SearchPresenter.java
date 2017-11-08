@@ -99,17 +99,6 @@ public class SearchPresenter implements Search.ActionListener{
     @Override
     public void selectTrack(Track item) {
 
-//        if (mPlayer == null) return;
-//
-//        String currentTrackUrl = mPlayer.getCurrentTrack();
-//
-//        if (currentTrackUrl == null || !currentTrackUrl.equals(previewUrl)) {
-//            mPlayer.play(previewUrl);
-//        } else if (mPlayer.isPlaying()) {
-//            mPlayer.pause();
-//        } else {
-//            mPlayer.resume();
-//        }
     }
 
 }

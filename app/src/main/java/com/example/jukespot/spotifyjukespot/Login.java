@@ -1,31 +1,32 @@
 package com.example.jukespot.spotifyjukespot;
 
 
+import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
 import com.example.jukespot.spotifyjukespot.Classes.LoginResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.google.gson.Gson;
+import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.util.List;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
 
 
 public class Login extends Activity{
@@ -38,18 +39,24 @@ public class Login extends Activity{
     private static final String TAG = Login.class.getSimpleName();
     private static final String loginUrl = "http://easel2.fulgentcorp.com:8081/";
     private Logging log;
-    private RetrofitClient rfit;
-    private UserApiService client;
+    private ServicesGateway gateway;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         user = User.getInstance();
+        gateway = ServicesGateway.getInstance();
         setContentView(R.layout.activity_login);
         initAllLayoutInteractions();
         log = new Logging();
 
-        rfit = RetrofitClient.getInstance();
+        if(!runtime_permissions()){
+//            Intent in = new Intent(this,LocationService.class);
+//            startService(in);
+            Intent i = new Intent(this,LocationIntentServices.class);
+            startService(i);
+        }
 
     }
 
@@ -74,38 +81,22 @@ public class Login extends Activity{
             log.logMessageWithToast(this ,TAG,"Username or Password is empty");
 
         }else{
-            login(UserName,Password);
-
-        }
-    }
-
-    public void login(final String userName, final String password){
-        final Context con  = this;
-        client = rfit.getClient(getString(R.string.web_service_url)).create(UserApiService.class);
-        String json = "{\"login\":\""+userName+"\",\"pw_hash\":\""+password+"\"}";
-        log.logMessage(TAG,json);
-        Call<LoginResponse> call = client.login("jukespot",json);
-        call.enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if(response.body().getResult().equals("ok")) {
-                    log.logMessage(TAG,"login successful response is " +
-                            response.body().getResult()+" "+
-                            response.body().getUserSessionnToken());
-                    user.setUserName(userName);
-                    user.setPassword(password);
-                    user.setSessionToken(response.body().getUserSessionnToken());
+            gateway.setListener(new ServiceGatewayListener() {
+                @Override
+                public void onSuccess() {
                     startJukeboxOptions();
-                }else{
-                    log.logMessageWithToast(con ,TAG,"Incorrect Username or Password");
                 }
-            }
+                @Override
+                public void gotPlaylists(List<JukeBoxResponse> jukeboxes){
 
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                log.logMessage(TAG,"login failed");
-            }
-        });
+                }
+                @Override
+                public  void onError(){
+
+                }
+            });
+            gateway.login(this,UserName,Password);
+        }
     }
 
     public void onNewMemberClicked(View view){
@@ -113,7 +104,7 @@ public class Login extends Activity{
         startNewUser();
     }
 
-    private void startJukeboxOptions(){
+    public void startJukeboxOptions(){
         Intent jukeboxOptionsIntent = new Intent(this, JukeboxUserOptions.class);
         startActivity(jukeboxOptionsIntent);
         finish();
@@ -125,5 +116,36 @@ public class Login extends Activity{
         finish();
     }
 
+    protected void onDestroy() {
+        super.onDestroy();
+//        Intent i =new Intent(getApplicationContext(),LocationService.class);
+//        stopService(i);
+//        if(broadcastReceiver != null){
+//            unregisterReceiver(broadcastReceiver);
+//        }
+    }
+
+    private boolean runtime_permissions() {
+        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},100);
+
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100){
+            if( grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                Intent i = new Intent(this,LocationIntentServices.class);
+                startService(i);
+            }else {
+                runtime_permissions();
+            }
+        }
+    }
 
 }

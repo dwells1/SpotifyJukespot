@@ -1,7 +1,7 @@
 package com.example.jukespot.spotifyjukespot.Classes;
 
 /**
- * Created by nique on 10/2/2017.
+ * Created by Dominique on 10/2/2017.
  */
 
 public class LoginResponse {
@@ -38,5 +38,6 @@ public class LoginResponse {
     public void setMessage(String message) {
         this.message = message;
     }
+
 
 }
