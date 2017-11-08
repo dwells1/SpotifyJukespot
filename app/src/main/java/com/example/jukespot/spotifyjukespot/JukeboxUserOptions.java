@@ -104,12 +104,17 @@ public class JukeboxUserOptions extends Activity {
 
     public void onStartNewJukeboxClicked(View view){
         log.logMessage(TAG,"START NEW PRESSED");
-        openSpotifyLogin("CREATE");
+        user.setTypeOfUser(UserType.CREATOR);
+        user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
+        openSpotifyLogin();
     }
 
     public void onJoinJukeboxClicked(View view){
         log.logMessage(TAG,"JOIN JUKE PRESSED");
-        openSpotifyLogin("JOIN");
+        user.setTypeOfUser(UserType.SUBSCRIBER);
+        /*TODO: Set Permissions AFTER JOINING A JUKEBOX */
+        //user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
+        openSpotifyLogin();
 
     }
 
@@ -150,7 +155,7 @@ public class JukeboxUserOptions extends Activity {
 
     }
 
-    public void openSpotifyLogin(String pressed){
+    public void openSpotifyLogin(){
         String loginToken = CredentialsHandler.getToken(this);
         if(loginToken == null) {
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -167,13 +172,9 @@ public class JukeboxUserOptions extends Activity {
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
         }else{
-            if(pressed.equals("CREATE")){
-                user.setTypeOfUser(UserType.CREATOR);
-                user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
+            if(user.getTypeOfUser().equals(UserType.CREATOR)){
                 startCreatorJukeboxOptions(loginToken);
             }else{
-                user.setTypeOfUser(UserType.SUBSCRIBER);
-                /*TODO: Determine when to set subscriber permissions!*/
                 startJoinJukeboxOptions(loginToken);
             }
 
@@ -193,11 +194,11 @@ public class JukeboxUserOptions extends Activity {
                     log.logMessageWithToast(this,TAG,"Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
 
-                    if(user.getTypeOfUser() == UserType.CREATOR)
+                    /*if(user.getTypeOfUser() == UserType.CREATOR)
                         startCreatorJukeboxOptions(response.getAccessToken());
                     else
                         startJoinJukeboxOptions(response.getAccessToken());
-                    break;
+                    break;*/
 
                 // Auth flow returned an error
                 case ERROR:

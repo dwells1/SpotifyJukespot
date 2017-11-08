@@ -102,13 +102,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setHomeButtonEnabled(true);
     }
 
-    /*LocationClass Stuff*/
-    /** Called when the user taps the Send button */
-    public void sendMessage (View view){
-        Intent intent = new Intent(this, GoogleLocActivity.class);
-        startActivity(intent);
-    }
-
     /*music player functions*/
     public void initPlayer(){
         Config playerConfig = new Config(this, token, CLIENT_ID);
