@@ -4,8 +4,10 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.jukespot.spotifyjukespot.Classes.User;
 import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
@@ -38,6 +40,8 @@ public class MusicPlayer implements MusicPlayerInterface
     private PlayerEvent currentEvent;
     private boolean isPaused;
 
+    private User user;
+
     private List<SimpleTrack> currentQueue;
 
     /*Set max size of prev tracks saved*/
@@ -55,6 +59,7 @@ public class MusicPlayer implements MusicPlayerInterface
         }
     };
     public void initSpotifyPlayer(Config playerConfig){
+        user = User.getInstance();
         Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
             @Override
             public void onInitialized(SpotifyPlayer spotifyPlayerToImplement) {
@@ -75,7 +80,10 @@ public class MusicPlayer implements MusicPlayerInterface
     }
     @Override
     public void play(SimpleTrack trackToPlay) {
-        spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
+        if(user.getTypeOfUser() == UserType.CREATOR)
+            spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
+        else
+            log.logMessage(TAG, "SUBS CANNOT PLAY ON PHONE");
         log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.song_name);
     }
 
@@ -105,6 +113,11 @@ public class MusicPlayer implements MusicPlayerInterface
         }
         currentQueue.remove(toRemove);
     }
+    public void removeFromPrevQueue(SimpleTrack toRemove){
+        previousTrackQueue.remove(toRemove);
+    }
+
+
 
     public List<SimpleTrack> getQueue(){return currentQueue;}
     public void printCurrentQueue(){

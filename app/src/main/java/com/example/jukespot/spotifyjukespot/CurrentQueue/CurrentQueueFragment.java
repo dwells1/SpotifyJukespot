@@ -127,12 +127,15 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
                 /*check user menu choices*/
                 switch(itemChosen){
                     case "Remove From Queue":
-                        /*TODO: add functionality to remove from queue*/
                         musicPlayer.removeFromQueue(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Play Now":
+                       /* current Queue removes from current position and moves it up to pos 0 so no repetition*/
+                        if(currentQueueType == QueueType.CURRENT_QUEUE)
+                            musicPlayer.removeFromQueue(trackChosen);
+
                         musicPlayer.queueAtPosition(0, trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
@@ -176,7 +179,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         }
 
         if(currentQueueType.equals(QueueType.PREV_QUEUE))
-            songPopUp.getMenu().getItem(0).setVisible(false);
+            songPopUp.getMenu().getItem(2).setVisible(false);
     }
     @Override
     public void onAttach(Context context) {

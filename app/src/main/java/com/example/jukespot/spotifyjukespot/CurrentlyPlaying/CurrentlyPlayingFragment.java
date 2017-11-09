@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
@@ -132,6 +133,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     }
 
     public void initButtons(){
+        /*TODO: Subscriber Types do not need Pause Play EVER*/
         btnPlayPause = view.findViewById(R.id.btnPlayPauseSong);
         btnPlayPause.setOnClickListener(this);
 
@@ -194,8 +196,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     @Override
     public void onClick(View view){
         log.logMessage(TAG, "PRESSED: " + view.getResources().getResourceName(view.getId()));
+        checkViewButtons(view);
+    }
+    public void checkViewButtons(View view){
         isSongPlaying = musicPlayer.isPlaying();
-       // isSongPaused = musicPlayer.getIsPaused();
+        // isSongPaused = musicPlayer.getIsPaused();
         switch(view.getId()){
             case R.id.btnPlayPauseSong:
                 if(!isSongPlaying && isSongPaused){
@@ -212,7 +217,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 }
                 break;
             case R.id.btnNextSong:
-               // musicPlayer.next();
+                // musicPlayer.next();
                 try{
                     name = musicPlayer.getNextTrack().song_name;
                     artist = musicPlayer.getNextTrack().artist;
@@ -250,7 +255,6 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 break;
         }
         ((MainActivity) getActivity()).getMusicPlayer();
-
     }
 
     public void updateSongInfo(){
