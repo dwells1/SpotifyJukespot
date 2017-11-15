@@ -38,6 +38,7 @@ public class JoinJukebox extends Activity {
     private String CHANNEL = "CHANNEL";
 
     private static final String TAG = JoinJukebox.class.getSimpleName();
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
