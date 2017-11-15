@@ -11,15 +11,16 @@
         android:layout_gravity="center_horizontal"
         android:text="Choose a Jukebox"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-<ListView
-    android:id="@+id/list_of_jukeboxes"
-    android:layout_width="wrap_content"
-    android:layout_height="371dp"
-    android:layout_marginTop="20dp"
-    android:layout_weight="0.94">
+
+    <ListView
+        android:id="@+id/list_of_jukeboxes"
+        android:layout_width="match_parent"
+        android:layout_height="371dp"
+        android:layout_marginTop="20dp"
+        android:layout_weight="0.94">
 
 
-</ListView>
+    </ListView>
 
     <Button
         android:id="@+id/bJoinJukebox2"
@@ -31,6 +32,6 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="17dp"
         android:clickable="true"
-        android:onClick="onStartJukeboxClicked2"
+        android:onClick="onJoinJukeboxClicked"
         android:text="Join Jukebox" />
 </LinearLayout>

@@ -102,7 +102,7 @@ public class ServicesGateway {
     }
 
     public void setDiscoverable(final Context con, Discoverable disc) {
-        client = rfit.getClient(con.getString(R.string.web_service_url)).create(UserApiService.class);
+        //client = rfit.getClient(con.getString(R.string.web_service_url)).create(UserApiService.class);
         String enabled = "{\"discoverable\":\"" + disc + "\"}";
         log.logMessage(TAG, "jukebox converted to json: " + enabled);
         updatePlaylist(con, enabled);
@@ -115,29 +115,30 @@ public class ServicesGateway {
         updatePlaylist(con, json);
     }
 
-    public void modifySongPlaylist(final Context con, SimpleTrack currentSong) {
+    public void addSongTOPlaylist(final Context con,Integer transId, SimpleTrack currentSong) {
         Gson gson = new Gson();
-        //String json = "\"current_queue\":" + gson.toJson(currentSong);
         String json = gson.toJson(currentSong);
-        log.logMessage(TAG, "Queue converted to json: " + json);
-        Call<LoginResponse> call = client.addSongToPlaylist(user.getSessionToken(), json);
-        call.enqueue(new Callback<LoginResponse>() {
-            @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if (response.body().getResult().equals("ok")) {
-                    log.logMessage(TAG, "updatePlaylist successful response is " +
-                            response.body().getResult() + " ");
-                    mListener.onSuccess();
-                } else if(response.body().getResult().equals("error")){
-                    log.logMessageWithToast(con, TAG, response.body().getMessage());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
-                log.logMessage(TAG, "update playlist failed");
-            }
-        });
+        log.logMessage(TAG,"track:" + json);
+//        String json = gson.toJson(currentSong);
+//        log.logMessage(TAG, "Queue converted to json: " + json);
+//        Call<LoginResponse> call = client.addSongToPlaylist(user.getSessionToken(), json);
+//        call.enqueue(new Callback<LoginResponse>() {
+//            @Override
+//            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+//                if (response.body().getResult().equals("ok")) {
+//                    log.logMessage(TAG, "updatePlaylist successful response is " +
+//                            response.body().getResult() + " ");
+//                    mListener.onSuccess();
+//                } else if(response.body().getResult().equals("error")){
+//                    log.logMessageWithToast(con, TAG, response.body().getMessage());
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<LoginResponse> call, Throwable t) {
+//                log.logMessage(TAG, "update playlist failed");
+//            }
+//        });
     }
 
     private void updatePlaylist(final Context con, String json) {
@@ -178,7 +179,8 @@ public class ServicesGateway {
                     mListener.gotPlaylists(rows.getRows());
                     for(JukeBoxResponse j : rows.getRows()){
                         log.logMessage(TAG,"Transaction_id:"+Integer.toString(j.getTransaction_id())+
-                        "\nPlaylist song_name:" + j.getLocation_fields().getPlaylist_name());
+                        "\nPlaylist song_name:" + j.getLocation_fields().getPlaylist_name() +
+                        "\nLatitude:" + j.getLatitude() + " Longitude:" + j.getLongitude());
                     }
                 }
             }
@@ -186,6 +188,53 @@ public class ServicesGateway {
             @Override
             public void onFailure(Call<JukeResponse> call, Throwable t) {
                 log.logMessage(TAG, "Failed to get Jukeboxes");
+            }
+        });
+    }
+
+    public void joinJukebox(final Context con, String json){
+        Call<LoginResponse> call = client.joinPlaylist(user.getSessionToken(), json);
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.body().getResult().equals("ok")) {
+                    log.logMessage(TAG, "Playlist Joined" +
+                            response.body().getResult() + " " +
+                            response.body().getMessage());
+                    getJukeboxes();
+                    //mListener.onSuccess();
+                } else if(response.body().getResult().equals("error")){
+                    log.logMessageWithToast(con, TAG, response.body().getMessage());
+                    mListener.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                log.logMessage(TAG, "Playlist failed to join");
+            }
+        });
+    }
+
+    public void leaveJukebox(final Context con, String json){
+        Call<LoginResponse> call = client.leavePlaylist(user.getSessionToken(), json);
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.body().getResult().equals("ok")) {
+                    log.logMessage(TAG, "Playlist Left" +
+                            response.body().getResult() + " " +
+                            response.body().getMessage());
+                    mListener.onSuccess();
+                } else if(response.body().getResult().equals("error")){
+                    log.logMessageWithToast(con, TAG, response.body().getMessage());
+                    mListener.onError();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                log.logMessage(TAG, "Failed to leave Playlist");
             }
         });
     }

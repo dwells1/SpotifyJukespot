@@ -191,14 +191,14 @@ public class JukeboxUserOptions extends Activity {
             switch (response.getType()) {
                 // JukeResponse was successful and contains auth token
                 case TOKEN:
-                    log.logMessageWithToast(this,TAG,"Got token: " + response.getAccessToken());
+                    log.logMessage(TAG,"Got token: " + response.getAccessToken());
                     CredentialsHandler.setToken(this, response.getAccessToken(), response.getExpiresIn(), TimeUnit.SECONDS);
 
-                    /*if(user.getTypeOfUser() == UserType.CREATOR)
+                    if(user.getTypeOfUser() == UserType.CREATOR)
                         startCreatorJukeboxOptions(response.getAccessToken());
                     else
                         startJoinJukeboxOptions(response.getAccessToken());
-                    break;*/
+                    break;
 
                 // Auth flow returned an error
                 case ERROR:

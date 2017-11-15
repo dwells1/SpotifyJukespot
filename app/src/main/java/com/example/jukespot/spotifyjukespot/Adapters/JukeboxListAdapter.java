@@ -17,11 +17,14 @@ import java.util.List;
  * Created by Dominique on 11/5/2017.
  */
 
-public class JukeboxListAdapter extends ArrayAdapter<JukeBoxResponse> {
+public class JukeboxListAdapter extends ArrayAdapter<JukeBoxResponse> implements View.OnClickListener {
+
+    private Context context;
+    private List<JukeBoxResponse> mJukeboxList;
 
     private static class ViewHolder {
         TextView name;
-        TextView home;
+        TextView hasPassword;
     }
 
     public JukeboxListAdapter(Context context, List<JukeBoxResponse> jukeboxes){
@@ -39,7 +42,7 @@ public class JukeboxListAdapter extends ArrayAdapter<JukeBoxResponse> {
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.item_jukebox, parent, false);
-            viewHolder.name = (TextView) convertView.findViewById(R.id.jukeboxName);
+            viewHolder.name = (TextView) convertView.findViewById(R.id.Name);
             //viewHolder.home = (TextView) convertView.findViewById(R.id.tvHome);
             // Cache the viewHolder object inside the fresh view
             convertView.setTag(viewHolder);
@@ -54,4 +57,10 @@ public class JukeboxListAdapter extends ArrayAdapter<JukeBoxResponse> {
         // Return the completed view to render on screen
         return convertView;
     }
+
+    @Override
+    public void onClick(View view) {
+
+    }
+
 }

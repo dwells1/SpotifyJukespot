@@ -178,6 +178,8 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
 
                 }
             });
+            /*TODO: Right now only proceeds if the user's jukespot is not set to discoverable, so if discoverable is to Y before executing set discoverable nothing happens
+             */
             gateway.setDiscoverable(this, Discoverable.Y);
 
         }
@@ -204,6 +206,8 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
     private void startMainActivity(){
         Intent intent = MainActivity.createIntent(this);
         intent.putExtra(EXTRA_TOKEN, accessToken);
+        intent.putExtra("TRANSACTION_ID",-1);
+        intent.putExtra("CHANNEL","");
         startActivity(intent);
         finish();
     }

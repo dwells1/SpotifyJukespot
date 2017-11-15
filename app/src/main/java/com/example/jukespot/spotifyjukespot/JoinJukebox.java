@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -32,6 +33,9 @@ public class JoinJukebox extends Activity {
     private ListView lv;
     private ServicesGateway gateway;
     private List<JukeBoxResponse> jukebox_array_list;
+    private String EXTRA_TOKEN = "EXTRA_TOKEN";
+    private String TRANSACTION_ID = "TRANSACTION_ID";
+    private String CHANNEL = "CHANNEL";
 
     private static final String TAG = JoinJukebox.class.getSimpleName();
     @Override
@@ -86,9 +90,21 @@ public class JoinJukebox extends Activity {
                 jukebox_array_list );
 
         lv.setAdapter(adapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,int position, long id)
+            {
+                Object selected = lv.getItemAtPosition(position);
+                JukeBoxResponse messageSelected = (JukeBoxResponse) selected;
+                if (messageSelected != null) {
+                    log.logMessage(TAG,messageSelected.getLocation_fields().toString());
+                    joinJukebox(messageSelected.getTransaction_id());
+                }
+
+            }});
+
     }
 
-    public void onStartJukeboxClicked2(View view){
+    public void onJoinJukeboxClicked(View view){
         log.logMessage(TAG, "JOINED JUKEBOX!");
 
         Intent i = new Intent(this,LocationIntentServices.class);
@@ -117,6 +133,48 @@ public class JoinJukebox extends Activity {
         jukebox_array_list.add(jukebox);
     }
 
+    private void joinJukebox(final Integer id){
+        String json = "{\"transaction_id\":"+ id + "}";
+        log.logMessage(TAG,json);
+        gateway.setListener(new ServiceGatewayListener() {
+            @Override
+            public void onSuccess() {
+            }
+
+            @Override
+            public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
+                String channel="";
+                for(JukeBoxResponse jboxes : jukeboxes){
+                    if(!jboxes.getChannel().equals("none")){
+                        channel = jboxes.getChannel();
+                        log.logMessage(TAG,"Channel:" + channel);
+                    }
+                }
+                log.logMessage(TAG,"join successful");
+                finishJoin(id,channel);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
+        gateway.joinJukebox(this,json);
+    }
+
+    private void finishJoin(Integer id,String channel){
+        log.logMessage(TAG, "JOINED JUKEBOX!");
+
+        Intent i = new Intent(this,LocationIntentServices.class);
+        startService(i);
+
+        Intent MainActivityIntent = new Intent(this, MainActivity.class);
+        MainActivityIntent.putExtra(EXTRA_TOKEN, authToken);
+        MainActivityIntent.putExtra(CHANNEL,channel);
+        MainActivityIntent.putExtra(TRANSACTION_ID,id);
+        startActivity(MainActivityIntent);
+        finish();
+    }
 
     //create a listener and populate the list
 }

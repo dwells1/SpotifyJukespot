@@ -10,13 +10,15 @@ public class JukeBoxResponse {
     private Integer transaction_id;
     private Double latitude;
     private Double longitude;
+    private String channel;
     private JukeBox location_fields;
 
-    public JukeBoxResponse(Integer transaction_id,Double latitude, Double longitude, JukeBox location_fields){
+    public JukeBoxResponse(Integer transaction_id,Double latitude, Double longitude, JukeBox location_fields,String channel){
         this.transaction_id = transaction_id;
         this.latitude = latitude;
         this.longitude = longitude;
         this.location_fields = location_fields;
+        this.channel = channel;
     }
 
     public Integer getTransaction_id() {
@@ -49,5 +51,13 @@ public class JukeBoxResponse {
 
     public void setLocation_fields(JukeBox location_fields) {
         this.location_fields = location_fields;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
     }
 }

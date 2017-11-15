@@ -9,6 +9,7 @@ import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.google.gson.Gson;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
@@ -90,6 +91,9 @@ public class MusicPlayer implements MusicPlayerInterface
     @Override
     public void queue(SimpleTrack track){
         currentQueue.add(track);
+        Gson gson = new Gson();
+        String json = gson.toJson(currentQueue);
+        log.logMessage(TAG,json);
         printCurrentQueue();
     }
 
@@ -97,6 +101,7 @@ public class MusicPlayer implements MusicPlayerInterface
         if(!doesPrevQueueHaveSpace())
             previousTrackQueue.remove(0);
         previousTrackQueue.add(trackToAdd);
+        printCurrentQueue();
     }
 
     public void queueAtPosition(int position, SimpleTrack trackToQueue){
@@ -105,8 +110,12 @@ public class MusicPlayer implements MusicPlayerInterface
             play(trackToQueue);
         }
         log.logMessage(TAG,"Add " + trackToQueue.song_name + " at Position : " + position);
+        Gson gson = new Gson();
+        String json = gson.toJson(currentQueue);
+        log.logMessage(TAG,json);
         printCurrentQueue();
     }
+
     public void removeFromQueue(SimpleTrack toRemove){
         if(currentQueue.get(0).equals(toRemove)){
             next();
@@ -120,6 +129,7 @@ public class MusicPlayer implements MusicPlayerInterface
 
 
     public List<SimpleTrack> getQueue(){return currentQueue;}
+
     public void printCurrentQueue(){
         if(currentQueue.isEmpty())
             return;
@@ -129,6 +139,7 @@ public class MusicPlayer implements MusicPlayerInterface
             log.logMessage(TAG, "track: " + t.song_name);
         }
     }
+
     public boolean doesCurrentQueueHaveSpace(){
         if (currentQueue.size() >= MAX_CURR_QUEUE_SIZE)
             return false;

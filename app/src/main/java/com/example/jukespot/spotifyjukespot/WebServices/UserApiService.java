@@ -20,11 +20,11 @@ public interface UserApiService {
 
     @GET("updateMyPlaylist")
     Call<LoginResponse> updateMyPlaylist(@Query("session_token") String token,
-                                       @Query("json") String json);
+                                         @Query("json") String json);
 
     @GET("updateUser")
     Call<LoginResponse> updateUser(@Query("session_token") String token,
-                                       @Query("json") String json);
+                                   @Query("json") String json);
 
     @GET("getUser")
     Call<ResponseBody> getUser(@Query("session_token") String token);
@@ -35,5 +35,13 @@ public interface UserApiService {
 
     @GET("addSongToPlaylist")
     Call<LoginResponse> addSongToPlaylist(@Query("session_token") String token,
-                                    @Query("json") String json);
+                                          @Query("json") String json);
+
+    @GET("joinPlaylist")
+    Call<LoginResponse> joinPlaylist(@Query("session_token") String token,
+                                     @Query("json") String json);
+
+    @GET("leavePlaylist")
+    Call<LoginResponse> leavePlaylist(@Query("session_token") String token,
+                                      @Query("json") String json);
 }

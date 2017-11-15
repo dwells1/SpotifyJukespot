@@ -191,18 +191,18 @@ public class SearchFragment extends Fragment implements Search.View{
                     case "Add to Queue":
                         if(musicPlayer.getQueue().isEmpty()){
                             musicPlayer.queueAtPosition(0,trackConverted);
-                            //gateway.modifySongPlaylist(getActivity(),trackConverted);
+                            //gateway.addSongToPlaylist(getActivity(),trackConverted);
                             //musicPlayer.play(trackChosenInSearch);
                         }else{
                             musicPlayer.queue(trackConverted);
-                            //gateway.modifySongPlaylist(getActivity(),trackConverted);
+                            //gateway.addSongToPlaylist(getActivity(),trackConverted);
                         }
 
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
                         musicPlayer.queueAtPosition(0, trackConverted);
-                        //gateway.modifySongPlaylist(getActivity(),trackConverted);
+                        //gateway.addSongToPlaylist(getActivity(),trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     default:

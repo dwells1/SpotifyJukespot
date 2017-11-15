@@ -1,5 +1,10 @@
 package com.example.jukespot.spotifyjukespot.Classes;
 
+import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Alex on 9/20/2017.
  */
@@ -12,7 +17,9 @@ public class JukeBox {
     private Double latitude;
     private Double longitude;
     private Double max_distance;
-    private static Integer max_contributor = 50;
+    private List<SimpleTrack> currentQueue = new ArrayList<SimpleTrack>();
+    private List<SimpleTrack> previousQueue = new ArrayList<SimpleTrack>();
+    private static Integer max_contributors = 50;
 
     public JukeBox(String playlist_name, String password, Double max_distance, Boolean isQueueEditable, Boolean isPlayAutomatic ){
         this.playlist_name = playlist_name;
@@ -92,11 +99,27 @@ public class JukeBox {
     }
 
     public static Integer getMax_contributor() {
-        return max_contributor;
+        return max_contributors;
     }
 
     @Override
     public String toString(){
         return playlist_name;
+    }
+
+    public List<SimpleTrack> getCurrentQueue() {
+        return currentQueue;
+    }
+
+    public void setCurrentQueue(List<SimpleTrack> currentQueue) {
+        this.currentQueue = currentQueue;
+    }
+
+    public List<SimpleTrack> getPreviousQueue() {
+        return previousQueue;
+    }
+
+    public void setPreviousQueue(List<SimpleTrack> previousQueue) {
+        this.previousQueue = previousQueue;
     }
 }

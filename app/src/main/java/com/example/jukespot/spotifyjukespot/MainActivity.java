@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     private ViewTypeFragments currentFragmentView;
     private String token;
+    private Integer transaction_id;
+    private String channel;
     private MusicPlayer musicPlayer;
     private FragmentManager manager;
 
@@ -87,6 +89,14 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             token = extras.getString("EXTRA_TOKEN");
+            if(extras.getInt("TRANSACTION_ID") != -1) {
+                transaction_id = extras.getInt("TRANSACTION_ID");
+                log.logMessage(TAG, "transaction id is " + transaction_id);
+            }
+            if(!extras.get("CHANNEL").equals("")){
+                channel = extras.getString("CHANNEL");
+                log.logMessage(TAG, "Channel is " + channel);
+            }
             //if(user.getTypeOfUser().equals("Creator"))
             initPlayer();
 //            Log.d(TAG,token);
@@ -195,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     public void createAlert(final String message){
 
         AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
+        final Context con = this;
         alertDlg.setMessage(message);
         alertDlg.setCancelable(false);
         alertDlg.setPositiveButton("Yes", new DialogInterface.OnClickListener(){
@@ -208,10 +219,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                     log.logMessage(TAG, "pressed leave current jukebox");
                     Toast.makeText(getApplicationContext(), "Jukebox Ended", Toast.LENGTH_SHORT).show();
                     musicPlayer.endCurrentPlayer();
-                    setDiscoverable();
+                    setDiscoverable(con);
                 }
                 if (message.equals("Are you sure you want to logout?")){
                     //Creator and subcriber have the same behavior for now.
+                    /*TODO: Need to add ending a jukespot or leaving a jukespot to the logout
                     /*TODO: Create another logout for Subscriber*/
                     log.logMessage(TAG, "pressed Are you sure you want to logout");
                     Toast.makeText(getApplicationContext(), "You sucessfully logout", Toast.LENGTH_SHORT).show();
@@ -226,11 +238,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 }
                 if(message.equals("Are you sure you want to leave current jukebox?")){
                     //Subscriber
-                    Toast.makeText(getApplicationContext(),"Left Jukebox",Toast.LENGTH_SHORT).show();
-                    musicPlayer.endCurrentPlayer();
-                    Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
-                    startActivity(jukeboxOptionsIntent);
-                    finish();
+                    leaveJukebox(con);
                 }
 
             }
@@ -363,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         super.onDestroy();
     }
 
-    private void setDiscoverable(){
+    private void setDiscoverable(final Context con){
         gateway.setListener(new ServiceGatewayListener() {
             @Override
             public void onSuccess() {
@@ -379,9 +387,34 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
             @Override
             public void onError() {
-
+                log.logMessageWithToast(con,TAG,"Failed to leave Jukebox");
             }
         });
         gateway.setDiscoverable(this,Discoverable.N);
+    }
+
+    private void leaveJukebox(final Context con){
+        String json = "{\"transaction_id\":"+ transaction_id + "}";;
+        gateway.setListener(new ServiceGatewayListener() {
+            @Override
+            public void onSuccess() {
+                Toast.makeText(getApplicationContext(),"Left Jukebox",Toast.LENGTH_SHORT).show();
+                musicPlayer.endCurrentPlayer();
+                Intent jukeboxOptionsIntent = new Intent(getApplicationContext(), JukeboxUserOptions.class);
+                startActivity(jukeboxOptionsIntent);
+                finish();
+            }
+
+            @Override
+            public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
+
+            }
+
+            @Override
+            public void onError() {
+                log.logMessageWithToast(con,TAG,"Failed to create Jukebox");
+            }
+        });
+        gateway.leaveJukebox(this,json);
     }
 }
