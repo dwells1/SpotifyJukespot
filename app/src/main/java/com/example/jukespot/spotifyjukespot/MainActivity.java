@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 transaction_id = extras.getInt("TRANSACTION_ID");
                 log.logMessage(TAG, "transaction id is " + transaction_id);
             }
-            if(!extras.get("CHANNEL").equals("")){
+            if(!extras.get("CHANNEL").equals("none")){
                 channel = extras.getString("CHANNEL");
                 log.logMessage(TAG, "Channel is " + channel);
             }
@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }else if(currentSelectionFromMenuTitle.equals("Currently Playing")){
             if(currentFragmentView != ViewTypeFragments.CURRENTLY_PLAYING){
                 currentFrag = new CurrentlyPlayingFragment();
-                ;
                 updateCurrentViewType(ViewTypeFragments.CURRENTLY_PLAYING);
 
             }else{
@@ -229,9 +228,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                     Toast.makeText(getApplicationContext(), "You sucessfully logout", Toast.LENGTH_SHORT).show();
                     try {
                           musicPlayer.endCurrentPlayer();
-                        }catch(NullPointerException e) {
+                          gateway.setDiscoverable(con, Discoverable.N);
+                    }catch(NullPointerException e) {
                          log.logMessage(TAG, "Music Player was not initialize before login out");
-                        }
+                    }
                     Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
                     startActivity(jukeboxLoginIntent);
                     finish();

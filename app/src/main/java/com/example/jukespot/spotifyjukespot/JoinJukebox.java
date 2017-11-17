@@ -105,16 +105,7 @@ public class JoinJukebox extends Activity {
     }
 
     public void onJoinJukeboxClicked(View view){
-        log.logMessage(TAG, "JOINED JUKEBOX!");
-
-        Intent i = new Intent(this,LocationIntentServices.class);
-        startService(i);
-
-        Intent MainActivityIntent = new Intent(this, MainActivity.class);
-        MainActivityIntent.putExtra("EXTRA_TOKEN", authToken);
-        startActivity(MainActivityIntent);
-        finish();
-
+        log.logMessage(TAG, "Nothing Happens!");
         // startNewUser();
     }
 
@@ -139,6 +130,7 @@ public class JoinJukebox extends Activity {
         gateway.setListener(new ServiceGatewayListener() {
             @Override
             public void onSuccess() {
+
             }
 
             @Override

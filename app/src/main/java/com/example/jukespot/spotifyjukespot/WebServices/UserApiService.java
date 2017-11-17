@@ -31,7 +31,9 @@ public interface UserApiService {
 
     @GET("getPlaylists")
     Call<JukeResponse> getPlaylists(@Query("session_token") String token,
-                                    @Query("json") String json);
+                                    @Query("json") String json);    //String is the distance
+    @GET("getMyPlaylist")
+    Call<JukeResponse> getMyPlaylist(@Query("session_token") String token);
 
     @GET("addSongToPlaylist")
     Call<LoginResponse> addSongToPlaylist(@Query("session_token") String token,
