@@ -1,51 +1,59 @@
 package com.example.jukespot.spotifyjukespot;
 
-import android.content.BroadcastReceiver;
-import android.content.DialogInterface;
-import android.net.Uri;
-/*TODO:WHEN MAKING A NEW FRAGMENT MAKE SURE THIS VERSION OF FRAGMENT IS IMPORTED IN THAT FILE**/
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.content.Context;
-import android.content.Intent;
-import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
-import com.example.jukespot.spotifyjukespot.Classes.User;
-import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
-import com.example.jukespot.spotifyjukespot.Enums.UserType;
-import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
-import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
-import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
-import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
-import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
-import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
-import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
-import com.google.android.gms.location.FusedLocationProviderClient;
+        import android.content.BroadcastReceiver;
+        import android.content.DialogInterface;
+        import android.net.Uri;
+/*TODO:WHEN MAKING A NEW FRAGMENT MAKE SURE THIS VERSION OF FRAGMENT IS IMPORTED IN THAT FILE**/
+        import android.support.v4.app.Fragment;
+        import android.support.v4.app.FragmentManager;
+        import android.support.v4.app.FragmentTransaction;
+        import android.support.v4.view.GravityCompat;
+        import android.support.v4.widget.DrawerLayout;
+        import android.support.v7.app.ActionBarDrawerToggle;
+        import android.support.v7.app.AlertDialog;
+        import android.support.v7.app.AppCompatActivity;
+        import android.os.Bundle;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.view.KeyEvent;
+        import android.view.MenuItem;
+        import android.view.View;
+        import android.widget.AdapterView;
+        import android.widget.ArrayAdapter;
+        import android.widget.ListView;
+        import android.widget.TextView;
+        import android.widget.Toast;
+
+        import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
+        import com.example.jukespot.spotifyjukespot.Classes.User;
+        import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
+        import com.example.jukespot.spotifyjukespot.Enums.UserType;
+        import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
+        import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
+        import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
+        import com.example.jukespot.spotifyjukespot.Logging.Logging;
+        import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+        import com.example.jukespot.spotifyjukespot.PubNub.PubNubConstants;
+        import com.example.jukespot.spotifyjukespot.PubNub.PubSubPnCallback;
+        import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
+        import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
+        import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
+        import com.google.android.gms.location.FusedLocationProviderClient;
 
 /*music player imports*/
-import com.spotify.sdk.android.player.Config;
+        import com.spotify.sdk.android.player.Config;
+        import com.pubnub.api.PNConfiguration;
 
-import java.util.List;
+        import com.pubnub.api.PubNub;
+
+        import java.util.Arrays;
+        import java.util.List;
+
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener,
-    CurrentlyPlayingFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
+        CurrentlyPlayingFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
     private static final String TAG = MainActivity.class.getSimpleName();
     Logging log = new Logging();
 
@@ -93,9 +101,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 transaction_id = extras.getInt("TRANSACTION_ID");
                 log.logMessage(TAG, "transaction id is " + transaction_id);
             }
-            if(!extras.get("CHANNEL").equals("")){
+            if(!extras.get("CHANNEL").equals("none")){
                 channel = extras.getString("CHANNEL");
                 log.logMessage(TAG, "Channel is " + channel);
+                initPubNub(channel);
             }
             //if(user.getTypeOfUser().equals("Creator"))
             initPlayer();
@@ -111,7 +120,16 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
     }
+    public final void initPubNub(String channel){
+        PNConfiguration config = new PNConfiguration();
+        config.setPublishKey(PubNubConstants.PUBNUB_PUBLISH_KEY);
+        config.setSubscribeKey(PubNubConstants.PUBNUB_SUBSCRIBE_KEY);
 
+        PubNub pubnub = new PubNub(config);
+        PubSubPnCallback callback = new PubSubPnCallback();
+        pubnub.addListener(callback);
+        pubnub.subscribe().channels(Arrays.asList(channel)).withPresence().execute(); //subscribe to a channel
+    }
     /*music player functions*/
     public void initPlayer(){
         Config playerConfig = new Config(this, token, CLIENT_ID);
@@ -173,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }else if(currentSelectionFromMenuTitle.equals("Currently Playing")){
             if(currentFragmentView != ViewTypeFragments.CURRENTLY_PLAYING){
                 currentFrag = new CurrentlyPlayingFragment();
-                ;
                 updateCurrentViewType(ViewTypeFragments.CURRENTLY_PLAYING);
 
             }else{
@@ -229,9 +246,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                     Toast.makeText(getApplicationContext(), "You sucessfully logout", Toast.LENGTH_SHORT).show();
                     try {
                           musicPlayer.endCurrentPlayer();
-                        }catch(NullPointerException e) {
+                          gateway.setDiscoverable(con, Discoverable.N);
+                    }catch(NullPointerException e) {
                          log.logMessage(TAG, "Music Player was not initialize before login out");
-                        }
+                    }
                     Intent jukeboxLoginIntent = new Intent(getApplicationContext(), Login.class);
                     startActivity(jukeboxLoginIntent);
                     finish();

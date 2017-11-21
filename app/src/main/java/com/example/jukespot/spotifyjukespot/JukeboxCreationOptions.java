@@ -53,7 +53,9 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
     private ServicesGateway gateway;
 
     private static final String TAG = JukeboxCreationOptions.class.getSimpleName();
-    static final String EXTRA_TOKEN = "EXTRA_TOKEN";
+    private String EXTRA_TOKEN = "EXTRA_TOKEN";
+    private String TRANSACTION_ID = "TRANSACTION_ID";
+    private String CHANNEL = "CHANNEL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +139,7 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
     public void onStartJukeboxClicked(View view){
         //take to main activity for now
         /*TODO: Store all the setting inputted by Creator and check that they are correct*/
+        log.logMessage(TAG, "Pressed Create Jukebox!");
          if (chkEditQueue.isChecked()){
              isQueueEditable = true;
          }else {
@@ -160,21 +163,24 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
         }
 
         if(jukeName.equals("")){
-            log.logMessage(TAG,"No song_name inputted");
+            log.logMessageWithToast(this,TAG,"JukeBox name required!");
         }else{
             jukeBox.setLongitude(user.getLongitude());
             jukeBox.setLatitude(user.getLatitude());
             gateway.setListener(new ServiceGatewayListener() {
                 @Override
                 public void onSuccess() {
+
+                    log.logMessage(TAG,"Calling Start Jukebox");
                     startJukeBox();
                 }
                 @Override
                 public void gotPlaylists(List<JukeBoxResponse> jukeboxes){
-
+                    //empty got playlist not needed
                 }
                 @Override
                 public  void onError(){
+                    log.logMessage(TAG, "Unable to call gateway to startJukebox Call #1");
 
                 }
             });
@@ -189,7 +195,9 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
         gateway.setListener(new ServiceGatewayListener() {
             @Override
             public void onSuccess() {
-                startMainActivity();
+
+                log.logMessage(TAG, "Calling startCreation");
+                startCreationToBeginMainActivity();
             }
             @Override
             public void gotPlaylists(List<JukeBoxResponse> jukeboxes){
@@ -197,17 +205,53 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
             }
             @Override
             public  void onError(){
-
+                log.logMessage(TAG, "Unable to startCreation Call to Gateway #2");
             }
         });
         gateway.modifyPlaylistParameters(this,jukeBox);
     }
 
-    private void startMainActivity(){
+    private void startCreationToBeginMainActivity(){
+        log.logMessage(TAG, "in start Creation!");
+        gateway.setListener(new ServiceGatewayListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
+                String channel = "none";
+                Integer tranId = -1;
+                for(JukeBoxResponse jboxes : jukeboxes){
+                    if(!jboxes.getChannel().equals("none")){
+                        channel = jboxes.getChannel();
+                        tranId = jboxes.getTransaction_id();
+                        log.logMessage(TAG, "Playlist Name Grabbed " + jboxes.getPlaylist_info().getPlaylist_name());
+                        log.logMessage(TAG,"Channel Grabbed in Creation:" + channel);
+
+                    }
+                }
+
+                log.logMessage(TAG,"Created Successfully Pubnub Channel grabbed");
+                startMainActivity(tranId, channel);
+            }
+
+            @Override
+            public void onError() {
+                log.logMessage(TAG, "UNABLE TO GET CREATORS PLAYLIST INFO!");
+            }
+        });
+        gateway.getMyPlaylist();
+
+    }
+
+    public void startMainActivity(Integer transactionId, String channel){
+        log.logMessage(TAG, "IN START MAIN ACTIVITY");
         Intent intent = MainActivity.createIntent(this);
         intent.putExtra(EXTRA_TOKEN, accessToken);
-        intent.putExtra("TRANSACTION_ID",-1);
-        intent.putExtra("CHANNEL","");
+        intent.putExtra(TRANSACTION_ID,-1);
+        intent.putExtra(CHANNEL,channel);
         startActivity(intent);
         finish();
     }

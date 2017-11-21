@@ -179,7 +179,7 @@ public class ServicesGateway {
                     mListener.gotPlaylists(rows.getRows());
                     for(JukeBoxResponse j : rows.getRows()){
                         log.logMessage(TAG,"Transaction_id:"+Integer.toString(j.getTransaction_id())+
-                        "\nPlaylist song_name:" + j.getLocation_fields().getPlaylist_name() +
+                        "\nPlaylist playlist_name:" + j.getLocation_fields().getPlaylist_name() +
                         "\nLatitude:" + j.getLatitude() + " Longitude:" + j.getLongitude());
                     }
                 }
@@ -191,7 +191,25 @@ public class ServicesGateway {
             }
         });
     }
+    public void getMyPlaylist(){
+        Call<JukeResponse> call = client.getMyPlaylist(user.getSessionToken());
+        call.enqueue(new Callback<JukeResponse>() {
+            @Override
+            public void onResponse(Call<JukeResponse> call, Response<JukeResponse> response) {
+                if (response.body().getResult().equals("ok")) {
+                    JukeResponse playlistResponse = new JukeResponse(response.body().getResult(),response.body().getRows());
+                    log.logMessage(TAG, "Result is " +
+                            response.body().getResult() + " " );
+                    mListener.gotPlaylists(playlistResponse.getRows());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<JukeResponse> call, Throwable t) {
+                log.logMessage(TAG, "Failed to get Jukeboxes");
+            }
+        });
+    }
     public void joinJukebox(final Context con, String json){
         Call<LoginResponse> call = client.joinPlaylist(user.getSessionToken(), json);
         call.enqueue(new Callback<LoginResponse>() {

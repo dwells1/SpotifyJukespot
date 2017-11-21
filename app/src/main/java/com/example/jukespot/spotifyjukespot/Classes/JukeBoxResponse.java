@@ -11,13 +11,15 @@ public class JukeBoxResponse {
     private Double latitude;
     private Double longitude;
     private String channel;
-    private JukeBox location_fields;
+    private JukeBox location_fields;       //for getPlaylist (SUBSCRIBER)
+    private JukeBox playlist_info;         //for getMyPlaylist (CREATORS)
 
     public JukeBoxResponse(Integer transaction_id,Double latitude, Double longitude, JukeBox location_fields,String channel){
         this.transaction_id = transaction_id;
         this.latitude = latitude;
         this.longitude = longitude;
         this.location_fields = location_fields;
+        this.playlist_info = location_fields;
         this.channel = channel;
     }
 
@@ -48,7 +50,9 @@ public class JukeBoxResponse {
     public JukeBox getLocation_fields() {
         return location_fields;
     }
-
+    public JukeBox getPlaylist_info() {
+        return playlist_info;
+    }
     public void setLocation_fields(JukeBox location_fields) {
         this.location_fields = location_fields;
     }
