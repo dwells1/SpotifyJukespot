@@ -75,7 +75,8 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         view = inflater.inflate(R.layout.fragment_current_queue, container, false);
         queueHeader = view.findViewById(R.id.queueHeader);
         initButton();
-        musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
+       // musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
+        musicPlayer = MusicPlayer.getInstance();
         initListView();
         return view;
 
@@ -125,6 +126,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
             public boolean onMenuItemClick(MenuItem menuOption) {
                 String itemChosen = menuOption.getTitle().toString();
                 /*check user menu choices*/
+                /*TODO: ADD WEBSERVICE FUNCTIONALITY HERE TOO*/
                 switch(itemChosen){
                     case "Remove From Queue":
                         musicPlayer.removeFromQueue(trackChosen);
@@ -141,7 +143,7 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Add to Queue":
-                        musicPlayer.queue(trackChosen);
+                        ((MainActivity)getActivity()).sendSongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;

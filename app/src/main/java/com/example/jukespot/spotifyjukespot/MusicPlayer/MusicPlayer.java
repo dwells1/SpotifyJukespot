@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot.MusicPlayer;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -9,6 +10,7 @@ import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
 import com.google.gson.Gson;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
@@ -40,7 +42,7 @@ public class MusicPlayer implements MusicPlayerInterface
     private PlaybackState playerPlaybackState;
     private PlayerEvent currentEvent;
     private boolean isPaused;
-
+    private static MusicPlayer instance = null;
     private User user;
 
     private List<SimpleTrack> currentQueue;
@@ -79,6 +81,12 @@ public class MusicPlayer implements MusicPlayerInterface
         });
 
     }
+    public static MusicPlayer getInstance() {
+        if (instance == null) {
+            instance = new MusicPlayer();
+        }
+        return instance;
+    }
     @Override
     public void play(SimpleTrack trackToPlay) {
         if(user.getTypeOfUser() == UserType.CREATOR)
@@ -90,7 +98,13 @@ public class MusicPlayer implements MusicPlayerInterface
 
     @Override
     public void queue(SimpleTrack track){
-        currentQueue.add(track);
+        //log.logMessage();
+        if(currentQueue.isEmpty()){
+            queueAtPosition(0, track);
+        }else{
+            currentQueue.add(track);
+        }
+
         Gson gson = new Gson();
         String json = gson.toJson(currentQueue);
         log.logMessage(TAG,json);

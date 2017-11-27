@@ -10,8 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.example.jukespot.spotifyjukespot.Adapters.JukeboxListAdapter;
+import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
 import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.UserPermissions;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
@@ -139,6 +141,21 @@ public class JoinJukebox extends Activity {
                 for(JukeBoxResponse jboxes : jukeboxes){
                     if(!jboxes.getChannel().equals("none")){
                         channel = jboxes.getChannel();
+                        JukeBox joinedBox = jboxes.getPlaylist_info();
+                        if(joinedBox.getPlayAutomatic() && joinedBox.getQueueEditable()){
+                            user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
+                        }
+                        else if(!joinedBox.getQueueEditable() && joinedBox.getPlayAutomatic()){
+                            user.setUserPermissions(UserPermissions.CAN_PLAY_NO_EDIT);
+                        }
+                        else if(joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()){
+                            user.setUserPermissions(UserPermissions.CAN_EDIT_NO_PLAY);
+                        }
+                        else if(!joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()){
+                            user.setUserPermissions(UserPermissions.NO_EDIT_NO_PLAY);
+                        }
+
+                        log.logMessage(TAG,"User Permissions: " + user.getUserPermissions().toString());
                         log.logMessage(TAG,"Channel:" + channel);
                     }
                 }

@@ -7,17 +7,27 @@ package com.example.jukespot.spotifyjukespot.PubNub;
 import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.reflect.TypeToken;
+
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import java.util.Map;
+
+
 
 public class PubSubPnCallback extends SubscribeCallback {
-    private static final String TAG = PubSubPnCallback.class.getName();
+    private static final String TAG = PubSubPnCallback.class.getSimpleName();
     Logging log = new Logging();
+    private Gson gson = new Gson();
     ///private final PubSubListAdapter pubSubListAdapter;
 
     // public PubSubPnCallback(PubSubListAdapter pubSubListAdapter) {
@@ -26,13 +36,13 @@ public class PubSubPnCallback extends SubscribeCallback {
 
     @Override
     public void status(PubNub pubnub, PNStatus status) {
-        /*
-        switch (status.getCategory()) {
+      log.logMessage(TAG, "Callback Status : " + status.getCategory().toString());
+        /*  switch (status.getCategory()) {
              // for common cases to handle, see: https://www.pubnub.com/docs/java/pubnub-java-sdk-v4
-             case PNStatusCategory.PNConnectedCategory:
-             case PNStatusCategory.PNUnexpectedDisconnectCategory:
-             case PNStatusCategory.PNReconnectedCategory:
-             case PNStatusCategory.PNDecryptionErrorCategory:
+             case PNConnectedCategory:
+             case PNUnexpectedDisconnectCategory:
+             case PNReconnectedCategory:
+             case PNDecryptionErrorCategory:
          }
         */
 
@@ -41,14 +51,23 @@ public class PubSubPnCallback extends SubscribeCallback {
 
     @Override
     public void message(PubNub pubnub, PNMessageResult message) {
+
         try {
              log.logMessage(TAG, message.toString());
+             JsonArray msgJsonArray = message.getMessage().getAsJsonArray();
+             String msgJsonStr =  gson.toJson(msgJsonArray.get(0));
+             Map<String, String> jsonMap = gson.fromJson(msgJsonStr, new TypeToken<Map<String,String>>(){}.getType());
 
-            //JsonNode jsonMsg = message.getMessage();
-            //PubSubPojo dsMsg = JsonUtil.convert(jsonMsg, PubSubPojo.class);
+             //if message is to add song to queue we convert it to song and add it
+             if(jsonMap.get("message_type").equals("add_song")){
+                 SimpleTrack convertedTrack = convertToSimpleTrack(jsonMap);
+                 MusicPlayer musicPlayer = MusicPlayer.getInstance();
+                 musicPlayer.queue(convertedTrack);
+                 musicPlayer.printCurrentQueue();
+             }
 
-            //this.pubSubListAdapter.add(dsMsg);
         } catch (Exception e) {
+            log.logMessage(TAG,"Message from PubNub Channel Failed to Convert into SimpleTrack");
             e.printStackTrace();
         }
     }
@@ -56,6 +75,16 @@ public class PubSubPnCallback extends SubscribeCallback {
     @Override
     public void presence(PubNub pubnub, PNPresenceEventResult presence) {
         // no presence handling for simplicity
+    }
+
+    public SimpleTrack convertToSimpleTrack(Map<String, String> jsonMap){
+        SimpleTrack converted;
+        converted = new SimpleTrack(jsonMap.get("name"), jsonMap.get("artist"), jsonMap.get("uri"), jsonMap.get("albumImgLink"));
+        log.logMessage(TAG,"TRACK CONVERTED:\nName: " +converted.song_name
+                +"\nArtist: " + converted.artist
+                +"\nURI: " + converted.uri
+                +"\nAlbum Image Link: " + converted.album_image_link);
+        return converted;
     }
 }
 

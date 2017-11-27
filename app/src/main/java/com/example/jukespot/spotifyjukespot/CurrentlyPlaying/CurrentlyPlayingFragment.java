@@ -1,5 +1,6 @@
 package com.example.jukespot.spotifyjukespot.CurrentlyPlaying;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -105,6 +106,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         return view;
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void setAlbumImage(){
 
         new AsyncTask<Void,Void,Void>(){

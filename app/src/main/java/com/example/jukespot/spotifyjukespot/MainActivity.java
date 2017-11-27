@@ -34,7 +34,9 @@ package com.example.jukespot.spotifyjukespot;
         import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
         import com.example.jukespot.spotifyjukespot.Logging.Logging;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+        import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
         import com.example.jukespot.spotifyjukespot.PubNub.PubNubConstants;
+        import com.example.jukespot.spotifyjukespot.PubNub.PubNubService;
         import com.example.jukespot.spotifyjukespot.PubNub.PubSubPnCallback;
         import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
         import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
@@ -120,20 +122,18 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
     }
-    public final void initPubNub(String channel){
-        PNConfiguration config = new PNConfiguration();
-        config.setPublishKey(PubNubConstants.PUBNUB_PUBLISH_KEY);
-        config.setSubscribeKey(PubNubConstants.PUBNUB_SUBSCRIBE_KEY);
 
-        PubNub pubnub = new PubNub(config);
-        PubSubPnCallback callback = new PubSubPnCallback();
-        pubnub.addListener(callback);
-        pubnub.subscribe().channels(Arrays.asList(channel)).withPresence().execute(); //subscribe to a channel
+    public final void initPubNub(String channel){
+        Intent pubNubServiceIntent = new Intent(this, PubNubService.class);
+        pubNubServiceIntent.setData(Uri.parse(channel));
+        startService(pubNubServiceIntent);
     }
+
     /*music player functions*/
     public void initPlayer(){
         Config playerConfig = new Config(this, token, CLIENT_ID);
-        musicPlayer = new MusicPlayer();
+       // musicPlayer = new MusicPlayer();
+        musicPlayer = MusicPlayer.getInstance();
         musicPlayer.initSpotifyPlayer(playerConfig);
     }
 
@@ -233,20 +233,23 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 log.logMessage(TAG, "pressed yes to end current jukebox");
                 if(message.equals("Are you sure you want to end current jukebox?")){
                     //Creator
-                    log.logMessage(TAG, "pressed leave current jukebox");
+                    log.logMessage(TAG, "pressed end current jukebox");
                     Toast.makeText(getApplicationContext(), "Jukebox Ended", Toast.LENGTH_SHORT).show();
                     musicPlayer.endCurrentPlayer();
                     setDiscoverable(con);
                 }
                 if (message.equals("Are you sure you want to logout?")){
-                    //Creator and subcriber have the same behavior for now.
-                    /*TODO: Need to add ending a jukespot or leaving a jukespot to the logout
-                    /*TODO: Create another logout for Subscriber*/
                     log.logMessage(TAG, "pressed Are you sure you want to logout");
-                    Toast.makeText(getApplicationContext(), "You sucessfully logout", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "You sucessfully logged out", Toast.LENGTH_SHORT).show();
                     try {
                           musicPlayer.endCurrentPlayer();
-                          gateway.setDiscoverable(con, Discoverable.N);
+                          /*check if user is subscriber they just leave jukebox
+                            else it gets set to not discoverable*/
+                          if(user.getTypeOfUser() == UserType.CREATOR) {
+                              gateway.setDiscoverable(con, Discoverable.N);
+                          }else{
+                              gateway.leaveJukebox(con, "{\"transaction_id\":"+ transaction_id+ "}");
+                          }
                     }catch(NullPointerException e) {
                          log.logMessage(TAG, "Music Player was not initialize before login out");
                     }
@@ -270,7 +273,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         alertDlg.create().show();
 
     }
-
+    public void sendSongToService(SimpleTrack trackToSend){
+        gateway.addSongTOPlaylist(this, transaction_id, trackToSend);
+    }
     public void openChosenFrag(Fragment currentFrag){
         if(currentFrag != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -430,9 +435,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
             @Override
             public void onError() {
-                log.logMessageWithToast(con,TAG,"Failed to create Jukebox");
+                log.logMessageWithToast(con,TAG,"Failed to Leave Jukebox");
             }
         });
-        gateway.leaveJukebox(this,json);
+        gateway.leaveJukebox(con,json);
     }
 }

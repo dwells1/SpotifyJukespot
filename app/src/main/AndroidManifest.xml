@@ -32,9 +32,12 @@
         <activity android:name=".NewUser" />
         <activity android:name=".JukeboxCreationOptions" />
         <activity android:name=".JoinJukebox" />
-        <activity android:name=".GoogleLocActivity" />
 
         <service android:name=".MusicPlayer.MusicPlayerService" />
+        <service android:name=".PubNub.PubNubService"
+            android:enabled="true"
+            android:exported="false"
+            />
         <service
             android:name=".LocationService"
             android:enabled="true"
