@@ -1,18 +1,26 @@
 package com.example.jukespot.spotifyjukespot;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.jukespot.spotifyjukespot.Adapters.JukeboxListAdapter;
 import com.example.jukespot.spotifyjukespot.Classes.JukeBox;
 import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
 import com.example.jukespot.spotifyjukespot.Enums.UserPermissions;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
@@ -39,7 +47,11 @@ public class JoinJukebox extends Activity {
     private String TRANSACTION_ID = "TRANSACTION_ID";
     private String CHANNEL = "CHANNEL";
 
+    private boolean isConfirmed = true;
+    private String passwordForJuke;
+
     private static final String TAG = JoinJukebox.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -56,27 +68,29 @@ public class JoinJukebox extends Activity {
             public void onSuccess() {
 
             }
+
             @Override
             public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
-                for(JukeBoxResponse j : jukeboxes){
-                    log.logMessage(TAG,"got Playlist:"+j.getLocation_fields().toString());
+                for (JukeBoxResponse j : jukeboxes) {
+                    log.logMessage(TAG, "got Playlist:" + j.getLocation_fields().toString());
                     addJukeBox(j);
                 }
                 initListView();
 
             }
+
             @Override
-            public void onError(){
+            public void onError() {
 
             }
         });
         gateway.getJukeboxes();
     }
 
-    private void initListView(){
+    private void initListView() {
         setContentView(R.layout.activity_jukebox_subscriber_options);
 
-        JukeboxListAdapter adapter = new JukeboxListAdapter(this,jukebox_array_list);
+        JukeboxListAdapter adapter = new JukeboxListAdapter(this, jukebox_array_list);
 
         lv = (ListView) findViewById(list_of_jukeboxes);
 
@@ -89,31 +103,48 @@ public class JoinJukebox extends Activity {
         ArrayAdapter<JukeBoxResponse> arrayAdapter = new ArrayAdapter<JukeBoxResponse>(
                 this,
                 android.R.layout.simple_list_item_1,
-                jukebox_array_list );
+                jukebox_array_list);
 
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,int position, long id)
-            {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Object selected = lv.getItemAtPosition(position);
                 JukeBoxResponse messageSelected = (JukeBoxResponse) selected;
                 if (messageSelected != null) {
-                    log.logMessage(TAG,messageSelected.getLocation_fields().toString());
-                    joinJukebox(messageSelected.getTransaction_id());
+                    JukeBox jukeToJoin = messageSelected.getLocation_fields(); //LOCATION FIELDS IS FOR SUBSCRIBERS
+                    String password = "";
+                    if(jukeToJoin.hasPassword()){
+                        password = jukeToJoin.getPassword();
+                        createPasswordAlert(password, messageSelected);
+                    }else{
+                        log.logMessage(TAG, "NO PASSWORD Required");
+                        log.logMessage(TAG, messageSelected.getLocation_fields().toString());
+                        joinJukebox(messageSelected.getTransaction_id());
+                    }
+
+                    /*if (password.isEmpty() || password.equals("")) {
+                        log.logMessage(TAG, messageSelected.getLocation_fields().toString());
+                        joinJukebox(messageSelected.getTransaction_id());
+                    } else {
+                        createPasswordAlert();
+                    }*/
+
+
                 }
 
-            }});
+            }
+        });
 
     }
 
-    public void onJoinJukeboxClicked(View view){
+    public void onJoinJukeboxClicked(View view) {
         log.logMessage(TAG, "Nothing Happens!");
         // startNewUser();
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event){
-        if((keyCode == KeyEvent.KEYCODE_BACK)){
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
             Intent jukeboxUserOptionsIntent = new Intent(this,
                     JukeboxUserOptions.class);
             startActivity(jukeboxUserOptionsIntent);
@@ -122,13 +153,13 @@ public class JoinJukebox extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
-    private void addJukeBox(JukeBoxResponse jukebox){
+    private void addJukeBox(JukeBoxResponse jukebox) {
         jukebox_array_list.add(jukebox);
     }
 
-    private void joinJukebox(final Integer id){
-        String json = "{\"transaction_id\":"+ id + "}";
-        log.logMessage(TAG,json);
+    private void joinJukebox(final Integer id) {
+        String json = "{\"transaction_id\":" + id + "}";
+        log.logMessage(TAG, json);
         gateway.setListener(new ServiceGatewayListener() {
             @Override
             public void onSuccess() {
@@ -137,30 +168,27 @@ public class JoinJukebox extends Activity {
 
             @Override
             public void gotPlaylists(List<JukeBoxResponse> jukeboxes) {
-                String channel="";
-                for(JukeBoxResponse jboxes : jukeboxes){
-                    if(!jboxes.getChannel().equals("none")){
+                String channel = "";
+                for (JukeBoxResponse jboxes : jukeboxes) {
+                    if (!jboxes.getChannel().equals("none")) {
                         channel = jboxes.getChannel();
-                        JukeBox joinedBox = jboxes.getPlaylist_info();
-                        if(joinedBox.getPlayAutomatic() && joinedBox.getQueueEditable()){
+                        JukeBox joinedBox = jboxes.getLocation_fields();
+                        if (joinedBox.getPlayAutomatic() && joinedBox.getQueueEditable()) {
                             user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
-                        }
-                        else if(!joinedBox.getQueueEditable() && joinedBox.getPlayAutomatic()){
+                        } else if (!joinedBox.getQueueEditable() && joinedBox.getPlayAutomatic()) {
                             user.setUserPermissions(UserPermissions.CAN_PLAY_NO_EDIT);
-                        }
-                        else if(joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()){
+                        } else if (joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()) {
                             user.setUserPermissions(UserPermissions.CAN_EDIT_NO_PLAY);
-                        }
-                        else if(!joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()){
+                        } else if (!joinedBox.getQueueEditable() && !joinedBox.getPlayAutomatic()) {
                             user.setUserPermissions(UserPermissions.NO_EDIT_NO_PLAY);
                         }
 
-                        log.logMessage(TAG,"User Permissions: " + user.getUserPermissions().toString());
-                        log.logMessage(TAG,"Channel:" + channel);
+                        log.logMessage(TAG, "User Permissions: " + user.getUserPermissions().toString());
+                        log.logMessage(TAG, "Channel:" + channel);
                     }
                 }
-                log.logMessage(TAG,"join successful");
-                finishJoin(id,channel);
+                log.logMessage(TAG, "join successful");
+                finishJoin(id, channel);
             }
 
             @Override
@@ -168,24 +196,65 @@ public class JoinJukebox extends Activity {
 
             }
         });
-        gateway.joinJukebox(this,json);
+        gateway.joinJukebox(this, json);
     }
 
-    private void finishJoin(Integer id,String channel){
+    private void finishJoin(Integer id, String channel) {
         log.logMessage(TAG, "JOINED JUKEBOX!");
 
-        Intent i = new Intent(this,LocationIntentServices.class);
+        Intent i = new Intent(this, LocationIntentServices.class);
         startService(i);
 
         Intent MainActivityIntent = new Intent(this, MainActivity.class);
         MainActivityIntent.putExtra(EXTRA_TOKEN, authToken);
-        MainActivityIntent.putExtra(CHANNEL,channel);
-        MainActivityIntent.putExtra(TRANSACTION_ID,id);
+        MainActivityIntent.putExtra(CHANNEL, channel);
+        MainActivityIntent.putExtra(TRANSACTION_ID, id);
         startActivity(MainActivityIntent);
         finish();
     }
 
     //create a listener and populate the list
+
+
+    public void createPasswordAlert(final String passwordFromJukebox, final JukeBoxResponse messageSelected) {
+        final String message = "Enter Password";
+        AlertDialog.Builder alertDlg = new AlertDialog.Builder(this);
+
+        final EditText edPassword = new EditText(this);
+        edPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        alertDlg.setView(edPassword);
+        alertDlg.setTitle("Password Required");
+        alertDlg.setPositiveButton("Enter", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if(edPassword.getText().equals("") || edPassword.equals(null)){
+                    log.logMessageWithToast(JoinJukebox.this, TAG, "No password inputted!");
+                }else{
+                    passwordForJuke = edPassword.getText().toString();
+                    log.logMessage(TAG, "Password Inputted: " + passwordForJuke);
+                    log.logMessage(TAG, "PASSWORD: " + passwordFromJukebox);
+                    if(passwordFromJukebox.equals(passwordForJuke)){
+                        log.logMessageWithToast(JoinJukebox.this, TAG, "Password is Correct!");
+                        log.logMessage(TAG, messageSelected.getLocation_fields().toString());
+                        joinJukebox(messageSelected.getTransaction_id());
+                    }else{
+                        log.logMessageWithToast(JoinJukebox.this, TAG, "Password is incorrect!");
+                    }
+
+                }
+            }
+        });
+
+
+        alertDlg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                log.logMessage(TAG, "nothing inputted");
+                passwordForJuke="";
+            }
+        });
+        alertDlg.create().show();
+    }
 }
 
 

@@ -184,6 +184,8 @@ public class ServicesGateway {
                         "\nLatitude:" + j.getLatitude() + " Longitude:" + j.getLongitude());
                     }
                 }
+
+
             }
 
             @Override

@@ -135,7 +135,6 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     }
 
     public void initButtons(){
-        /*TODO: Subscriber Types do not need Pause Play EVER*/
         btnPlayPause = view.findViewById(R.id.btnPlayPauseSong);
         btnPlayPause.setOnClickListener(this);
 
@@ -173,6 +172,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 permissionsHeader.setText("You DO NOT have permission to use player");
                 break;
         }
+
+        /*Subscribers cannot pause / play song only creator has access to that*/
+        if(user.getTypeOfUser() == UserType.SUBSCRIBER)
+            disablePausePlayButton();
+
     }
     public void disableAllButtons(){
         btnPlayPause.setAlpha(.5f);
@@ -191,9 +195,12 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     }
     public void hideButtons(){
         btnPlayPause.setVisibility(View.INVISIBLE);
-        //btnPause.setVisibility(View.INVISIBLE);
         btnNext.setVisibility(View.INVISIBLE);
         btnPrev.setVisibility(View.INVISIBLE);
+    }
+    public void disablePausePlayButton(){
+        btnPlayPause.setAlpha(.5f);
+        btnPlayPause.setClickable(false);
     }
     @Override
     public void onClick(View view){
