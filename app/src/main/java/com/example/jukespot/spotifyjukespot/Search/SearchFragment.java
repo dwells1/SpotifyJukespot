@@ -188,14 +188,15 @@ public class SearchFragment extends Fragment implements Search.View{
                 String itemChosen = item.getTitle().toString();
                 switch(itemChosen){
                     case "Add to Queue":
-                        ((MainActivity)getActivity()).sendSongToService(trackConverted);
+                        ((MainActivity)getActivity()).sendAddSongToService(trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
                         /*TODO: Needs to be added to the webservice so it is bumped up to the begining of the queue*/
                         // musicPlayer.queueAtPosition(0, trackConverted);
+                        ((MainActivity)getActivity()).sendPlaySongToService(trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
-                        log.logMessage(TAG,"SEARCH PLAY NOW ERROR: HAS NOT BEEN IMPLEMENTED IN SERVICE CURRENTLY DOES NOTHING!");
+                       //log.logMessage(TAG,"SEARCH PLAY NOW ERROR: HAS NOT BEEN IMPLEMENTED IN SERVICE CURRENTLY DOES NOTHING!");
                         break;
                     default:
                         break;

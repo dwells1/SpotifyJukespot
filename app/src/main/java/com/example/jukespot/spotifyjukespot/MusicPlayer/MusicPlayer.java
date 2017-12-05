@@ -135,8 +135,11 @@ public class MusicPlayer implements MusicPlayerInterface
             next();
         }
         currentQueue.remove(toRemove);
+        log.logMessage(TAG,"QUEUE AFTER REMOVAL:");
+        printCurrentQueue();
     }
     public void removeFromPrevQueue(SimpleTrack toRemove){
+
         previousTrackQueue.remove(toRemove);
     }
 
@@ -166,6 +169,16 @@ public class MusicPlayer implements MusicPlayerInterface
             return false;
         return true;
     }
+    /*Removes from the queue based on what is returned from the pubnub channel*/
+    public void removeFromQueueFromService(SimpleTrack serviceTrack){
+        for(SimpleTrack track : currentQueue){
+            if(track.uri.equals(serviceTrack.uri)){
+                log.logMessage(TAG,"Track to remove : " + track.song_name);
+                currentQueue.remove(track);
+            }
+        }
+    }
+
 
     @Override
     public void pause() {
@@ -285,8 +298,6 @@ public class MusicPlayer implements MusicPlayerInterface
             log.logMessage(TAG,"Song Ended!");
             next();
         }
-        //check if user pressed next
-
         playerMetadata = spotifyPlayer.getMetadata();
         playerPlaybackState = spotifyPlayer.getPlaybackState();
         log.logMessage(TAG, "META : " + playerMetadata );

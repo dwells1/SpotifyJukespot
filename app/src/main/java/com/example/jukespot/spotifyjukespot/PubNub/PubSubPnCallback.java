@@ -51,7 +51,8 @@ public class PubSubPnCallback extends SubscribeCallback {
 
     @Override
     public void message(PubNub pubnub, PNMessageResult message) {
-
+        SimpleTrack convertedTrack;
+        MusicPlayer musicPlayer = MusicPlayer.getInstance();
         try {
              log.logMessage(TAG, message.toString());
              JsonArray msgJsonArray = message.getMessage().getAsJsonArray();
@@ -60,10 +61,16 @@ public class PubSubPnCallback extends SubscribeCallback {
 
              //if message is to add song to queue we convert it to song and add it
              if(jsonMap.get("message_type").equals("add_song")){
-                 SimpleTrack convertedTrack = convertToSimpleTrack(jsonMap);
-                 MusicPlayer musicPlayer = MusicPlayer.getInstance();
+                 convertedTrack = convertToSimpleTrack(jsonMap);
                  musicPlayer.queue(convertedTrack);
                  musicPlayer.printCurrentQueue();
+             }else if (jsonMap.get("message_type").equals("play_song")){
+                 convertedTrack = convertToSimpleTrack(jsonMap);
+                 musicPlayer.queueAtPosition(0,convertedTrack);
+                 musicPlayer.printCurrentQueue();
+             }else if(jsonMap.get("message_type").equals("remove_song")){
+                 convertedTrack = convertToSimpleTrack(jsonMap);
+                 musicPlayer.removeFromQueueFromService(convertedTrack);
              }
 
         } catch (Exception e) {

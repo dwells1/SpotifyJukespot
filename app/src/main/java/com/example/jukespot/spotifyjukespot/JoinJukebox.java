@@ -121,15 +121,6 @@ public class JoinJukebox extends Activity {
                         log.logMessage(TAG, messageSelected.getLocation_fields().toString());
                         joinJukebox(messageSelected.getTransaction_id());
                     }
-
-                    /*if (password.isEmpty() || password.equals("")) {
-                        log.logMessage(TAG, messageSelected.getLocation_fields().toString());
-                        joinJukebox(messageSelected.getTransaction_id());
-                    } else {
-                        createPasswordAlert();
-                    }*/
-
-
                 }
 
             }

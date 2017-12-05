@@ -273,9 +273,16 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         alertDlg.create().show();
 
     }
-    public void sendSongToService(SimpleTrack trackToSend){
+    public void sendAddSongToService(SimpleTrack trackToSend){
         gateway.addSongTOPlaylist(this, transaction_id, trackToSend);
     }
+    public void sendPlaySongToService(SimpleTrack trackToPlay){
+        gateway.playSongNow(this, transaction_id, trackToPlay);
+    }
+    public void sendRemoveSongToService(SimpleTrack trackToRemove){
+        gateway.removeSongFromPlaylist(this, transaction_id, trackToRemove);
+    }
+
     public void openChosenFrag(Fragment currentFrag){
         if(currentFrag != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();

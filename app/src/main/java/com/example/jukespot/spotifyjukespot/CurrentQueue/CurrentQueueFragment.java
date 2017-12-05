@@ -126,24 +126,23 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
             public boolean onMenuItemClick(MenuItem menuOption) {
                 String itemChosen = menuOption.getTitle().toString();
                 /*check user menu choices*/
-                /*TODO: ADD WEBSERVICE FUNCTIONALITY HERE TOO*/
                 switch(itemChosen){
                     case "Remove From Queue":
-                        musicPlayer.removeFromQueue(trackChosen);
+                        ((MainActivity)getActivity()).sendRemoveSongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Play Now":
-                       /* current Queue removes from current position and moves it up to pos 0 so no repetition*/
+                       /* remove from local queue to move it to top of the queue*/
                         if(currentQueueType == QueueType.CURRENT_QUEUE)
-                            musicPlayer.removeFromQueue(trackChosen);
+                            ((MainActivity)getActivity()).sendRemoveSongToService(trackChosen);
 
-                        musicPlayer.queueAtPosition(0, trackChosen);
+                        ((MainActivity)getActivity()).sendPlaySongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Add to Queue":
-                        ((MainActivity)getActivity()).sendSongToService(trackChosen);
+                        ((MainActivity)getActivity()).sendAddSongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
