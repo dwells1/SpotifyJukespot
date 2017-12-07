@@ -27,6 +27,7 @@ package com.example.jukespot.spotifyjukespot;
 
         import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
         import com.example.jukespot.spotifyjukespot.Classes.User;
+        import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
         import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
         import com.example.jukespot.spotifyjukespot.Enums.UserType;
         import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
@@ -34,6 +35,7 @@ package com.example.jukespot.spotifyjukespot;
         import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
         import com.example.jukespot.spotifyjukespot.Logging.Logging;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+        import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayerDelegate;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
         import com.example.jukespot.spotifyjukespot.PubNub.PubNubConstants;
         import com.example.jukespot.spotifyjukespot.PubNub.PubNubService;
@@ -51,11 +53,14 @@ package com.example.jukespot.spotifyjukespot;
 
         import java.util.Arrays;
         import java.util.List;
+        import java.util.Observable;
+        import java.util.Observer;
 
 
 /*TODO: When Adding new Fragments you have to implement them as the ones here*/
 public class MainActivity extends AppCompatActivity implements SearchFragment.OnFragmentInteractionListener,
-        CurrentlyPlayingFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener{
+        CurrentlyPlayingFragment.OnFragmentInteractionListener, CurrentQueueFragment.OnFragmentInteractionListener
+        ,Observer {
     private static final String TAG = MainActivity.class.getSimpleName();
     Logging log = new Logging();
 
@@ -108,10 +113,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 log.logMessage(TAG, "Channel is " + channel);
                 initPubNub(channel);
             }
-            //if(user.getTypeOfUser().equals("Creator"))
             initPlayer();
-//            Log.d(TAG,token);
-            //The key argument here must match that used in the other activity
         }
 
         /*Functions for Navigable Menu*/
@@ -135,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
        // musicPlayer = new MusicPlayer();
         musicPlayer = MusicPlayer.getInstance();
         musicPlayer.initSpotifyPlayer(playerConfig);
+        musicPlayer.addObserverToDelegate(this);
     }
 
     public MusicPlayer getMusicPlayer(){
@@ -296,7 +299,9 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
                 FragNotFound.printStackTrace();
             }
             currentActivityTitle = currentSelectionFromMenuTitle;
-            mDrawerLayout.closeDrawer(mDrawerList);
+            if(mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
         }
     }
 
@@ -446,5 +451,21 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             }
         });
         gateway.leaveJukebox(con,json);
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        MusicPlayerDelegate delegate = (MusicPlayerDelegate) observable;
+        ChangeType whatToDo = (ChangeType) o;
+        SimpleTrack trackChosen = delegate.trackChosen;
+        if(whatToDo == ChangeType.REMOVE_FROM_SERVICE) {
+            sendRemoveSongToService(trackChosen);
+        }else if(whatToDo == ChangeType.UPDATE_GUI){
+            log.logMessage(TAG,"UPDATE GUI FROM DELEGATE CALLED!");
+            if(currentFragmentView == ViewTypeFragments.CURRENTLY_PLAYING){
+                log.logMessage(TAG,"UPDATE CURRENTLY PLAYING!");
+                updateGUICurrentlyPlaying();
+            }
+        }
     }
 }

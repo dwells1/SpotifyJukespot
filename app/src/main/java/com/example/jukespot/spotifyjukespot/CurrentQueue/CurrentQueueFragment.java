@@ -158,24 +158,24 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
     public void validateUserPermissions(){
         switch(user.getUserPermissions()){
             case CAN_EDIT_NO_PLAY:
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
             case CAN_PLAY_NO_EDIT:
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
             case CAN_PLAY_AND_EDIT:
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(true);
                 break;
             case NO_EDIT_NO_PLAY:
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(false);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
         }
 

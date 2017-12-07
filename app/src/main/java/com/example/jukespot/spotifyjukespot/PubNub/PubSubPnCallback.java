@@ -6,8 +6,11 @@ package com.example.jukespot.spotifyjukespot.PubNub;
 
 import android.util.Log;
 
+import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
+import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayerDelegate;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 
 import com.google.gson.Gson;
@@ -53,12 +56,13 @@ public class PubSubPnCallback extends SubscribeCallback {
     public void message(PubNub pubnub, PNMessageResult message) {
         SimpleTrack convertedTrack;
         MusicPlayer musicPlayer = MusicPlayer.getInstance();
+        String msgForException = "getting message";
         try {
              log.logMessage(TAG, message.toString());
              JsonArray msgJsonArray = message.getMessage().getAsJsonArray();
              String msgJsonStr =  gson.toJson(msgJsonArray.get(0));
              Map<String, String> jsonMap = gson.fromJson(msgJsonStr, new TypeToken<Map<String,String>>(){}.getType());
-
+             msgForException =  jsonMap.get("message_type");
              //if message is to add song to queue we convert it to song and add it
              if(jsonMap.get("message_type").equals("add_song")){
                  convertedTrack = convertToSimpleTrack(jsonMap);
@@ -73,8 +77,10 @@ public class PubSubPnCallback extends SubscribeCallback {
                  musicPlayer.removeFromQueueFromService(convertedTrack);
              }
 
+
+
         } catch (Exception e) {
-            log.logMessage(TAG,"Message from PubNub Channel Failed to Convert into SimpleTrack");
+            log.logMessage(TAG,"Message from PubNub Channel Failed to " + msgForException);
             e.printStackTrace();
         }
     }

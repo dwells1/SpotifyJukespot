@@ -87,14 +87,14 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         initAlbumCover();
         validateUserPermissions();
         try {
-            musicPlayer = ((MainActivity) getActivity()).getMusicPlayer();
+            musicPlayer = musicPlayer.getInstance();
             isSongPlaying = musicPlayer.isPlaying();
             isSongPaused = musicPlayer.getIsPaused();
 
             if(isSongPlaying || isSongPaused){
-                name = musicPlayer.getCurrentTrack().name;
-                artist = musicPlayer.getCurrentTrack().artistName;
-                urlString = musicPlayer.getCurrentTrack().albumCoverWebUrl;
+                name = musicPlayer.getCurrentTrackNotFromPlayer().song_name;
+                artist = musicPlayer.getCurrentTrackNotFromPlayer().artist;
+                urlString = musicPlayer.getCurrentTrackNotFromPlayer().album_image_link;
                 updateSongInfo();
             }else{
                 updateSongInfo();
@@ -226,8 +226,9 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 }
                 break;
             case R.id.btnNextSong:
-                // musicPlayer.next();
-                try{
+                musicPlayer.next();
+
+                /*try{
                     name = musicPlayer.getNextTrack().song_name;
                     artist = musicPlayer.getNextTrack().artist;
                     urlString = musicPlayer.getNextTrack().album_image_link;
@@ -242,7 +243,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                     log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
                     updateSongInfo();
                     break;
-                }
+                }*/
                 break;
 
             case R.id.btnPrevSong:
@@ -268,7 +269,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
     public void updateSongInfo(){
         isSongPlaying = musicPlayer.isPlaying();
-        isSongPaused =musicPlayer.getIsPaused();
+        isSongPaused = musicPlayer.getIsPaused();
 
         if(isSongPlaying || isSongPaused){
             txtSongTitle.setText(name);
