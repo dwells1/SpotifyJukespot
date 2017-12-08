@@ -3,6 +3,7 @@ package com.example.jukespot.spotifyjukespot.MusicPlayer;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
@@ -26,6 +27,7 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observer;
 
 /**
  * Created by Lino on 9/29/2017.
@@ -97,10 +99,12 @@ public class MusicPlayer implements MusicPlayerInterface
     @Override
     public void play(SimpleTrack trackToPlay) {
         currentTrackNotFromPlayer = trackToPlay;
-        if(user.getTypeOfUser() == UserType.CREATOR)
+        if(user.getTypeOfUser() == UserType.CREATOR) {
             spotifyPlayer.playUri(null, trackToPlay.uri, 0, 0);
-        else
+            setIsPaused(false);
+        }else {
             log.logMessage(TAG, "SUBS CANNOT PLAY ON PHONE");
+        }
         log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.song_name);
     }
 
@@ -131,7 +135,7 @@ public class MusicPlayer implements MusicPlayerInterface
     }
 
     public void removeFromQueue(SimpleTrack toRemove){
-        if(currentQueue.get(0).equals(toRemove)){
+        if(currentQueue.get(0).equals(toRemove) && !(currentQueue.size() <= 1)){
             play(currentQueue.get(1));
         }
         currentQueue.remove(toRemove);
@@ -184,13 +188,14 @@ public class MusicPlayer implements MusicPlayerInterface
         for(int ndx : indexOfRemovedSongs){
             removeFromQueue(currentQueue.get(ndx));
         }
-        updateCurrentGUI();
+       // updateCurrentGUI();
     }
 
 
     @Override
     public void pause() {
        spotifyPlayer.pause(mOperationCallback);
+       setIsPaused(true);
     }
 
 
@@ -199,15 +204,6 @@ public class MusicPlayer implements MusicPlayerInterface
         //spotifyPlayer.skipToNext(mOperationCallback);
         log.logMessage(TAG,"TRACK TO REMOVE: " + currentQueue.get(0).song_name);
         delegate.removeAndUpdate(currentQueue.get(0), ChangeType.REMOVE_FROM_SERVICE);
-        // addToPrevQueue(currentQueue.get(0));
-        // currentQueue.remove(0);
-/*        if(!currentQueue.isEmpty()) {
-            play(currentQueue.get(0));
-        }else{
-            log.logMessage(TAG,"No NEXT song in Queue");
-        }
-
-*/
     }
 
     @Override
@@ -220,6 +216,7 @@ public class MusicPlayer implements MusicPlayerInterface
     @Override
     public void resume() {
         spotifyPlayer.resume(mOperationCallback);
+        setIsPaused(false);
     }
 
     @Override
@@ -314,6 +311,9 @@ public class MusicPlayer implements MusicPlayerInterface
             log.logMessage(TAG,"Song Ended!");
             next();
         }
+        if(playerEvent.equals(PlayerEvent.kSpPlaybackNotifyMetadataChanged)){
+            updateCurrentGUI();
+        }
         playerMetadata = spotifyPlayer.getMetadata();
         playerPlaybackState = spotifyPlayer.getPlaybackState();
         log.logMessage(TAG, "META : " + playerMetadata );
@@ -327,12 +327,20 @@ public class MusicPlayer implements MusicPlayerInterface
     }
 
     public void updateCurrentGUI(){
-       log.logMessage(TAG, "update gui from music player calls");
+        log.logMessage(TAG, "update gui from music player calls");
         delegate.updateGUI(ChangeType.UPDATE_GUI);
 
     }
     public void addObserverToDelegate(MainActivity activity){
         delegate.addObserver(activity);
+    }
+
+    public void addFragmentObserver(Fragment fragToObserve){
+        delegate.addObserver((Observer) fragToObserve);
+    }
+
+    public void removeObserverFragment(Fragment fragToObserve){
+        delegate.deleteObserver((Observer)fragToObserve);
     }
 
 }
