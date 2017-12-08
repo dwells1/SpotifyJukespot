@@ -335,9 +335,6 @@ public class MusicPlayer implements MusicPlayerInterface
         delegate.addObserver(activity);
     }
 
-    public void addFragmentObserver(Fragment fragToObserve){
-        delegate.addObserver((Observer) fragToObserve);
-    }
 
     public void removeObserverFragment(Fragment fragToObserve){
         delegate.deleteObserver((Observer)fragToObserve);

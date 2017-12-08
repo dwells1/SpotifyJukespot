@@ -226,25 +226,32 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 if(!isSongPlaying && isSongPaused){
                     musicPlayer.resume();
                     btnPlayPause.setText("Pause");
-                   // isSongPaused = false;
-                    musicPlayer.setIsPaused(isSongPaused);
+                    // isSongPaused = false;
+                    //musicPlayer.setIsPaused(isSongPaused);
                 }
                 else if(isSongPlaying && !isSongPaused){
                     musicPlayer.pause();
                     btnPlayPause.setText("Play");
                     //isSongPaused = true;
-                    musicPlayer.setIsPaused(isSongPaused);
+                    //musicPlayer.setIsPaused(isSongPaused);
                 }
                 break;
             case R.id.btnNextSong:
                 /*TODO: CHECK QUEUE SIZE BEFORE CALLING NEXT BECAUSE IT WILL REMOVE A SONG FROM THE WEBSERVIC BEFORE CHECKING IF ITS THE LAST ONE IN THE QUEUE*/
                 try {
-                    musicPlayer.next();
+                    if(musicPlayer.getCurrentQueue().size() > 1){
+                        musicPlayer.next();
+                    }else if(musicPlayer.getCurrentQueue().size() == 1){
+                        log.logMessageWithToast(getActivity(),TAG,"This is the last song on the queue");
+                    }else if(musicPlayer.getCurrentQueue().size() <= 0){
+                        updateSongInfo();
+                    }
+
                 }catch(NullPointerException | IndexOutOfBoundsException noNextTrack){
-                   // noNextTrack.printStackTrace();
-                    log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
+                    // noNextTrack.printStackTrace();
+                    // log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
                     log.logError(getActivity(), TAG, "Array For Current Queue is not valid");
-                   // updateSongInfo();
+                    updateSongInfo();
                     break;
                 }
 
