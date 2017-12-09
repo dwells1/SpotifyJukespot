@@ -75,7 +75,8 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
         view = inflater.inflate(R.layout.fragment_current_queue, container, false);
         queueHeader = view.findViewById(R.id.queueHeader);
         initButton();
-        musicPlayer = ((MainActivity)getActivity()).getMusicPlayer();
+        musicPlayer = MusicPlayer.getInstance();
+
         initListView();
         return view;
 
@@ -127,21 +128,21 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
                 /*check user menu choices*/
                 switch(itemChosen){
                     case "Remove From Queue":
-                        musicPlayer.removeFromQueue(trackChosen);
+                        ((MainActivity)getActivity()).sendRemoveSongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Play Now":
-                       /* current Queue removes from current position and moves it up to pos 0 so no repetition*/
+                       /* remove from local queue to move it to top of the queue*/
                         if(currentQueueType == QueueType.CURRENT_QUEUE)
-                            musicPlayer.removeFromQueue(trackChosen);
+                            ((MainActivity)getActivity()).sendRemoveSongToService(trackChosen);
 
-                        musicPlayer.queueAtPosition(0, trackChosen);
+                        ((MainActivity)getActivity()).sendPlaySongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
                     case "Add to Queue":
-                        musicPlayer.queue(trackChosen);
+                        ((MainActivity)getActivity()).sendAddSongToService(trackChosen);
                         updateList(currentQueueType);
                         log.logMessage(TAG, "Pressed in Popup:" + menuOption.getTitle() + " for " + trackChosen.song_name);
                         break;
@@ -157,24 +158,24 @@ public class CurrentQueueFragment extends Fragment implements View.OnClickListen
     public void validateUserPermissions(){
         switch(user.getUserPermissions()){
             case CAN_EDIT_NO_PLAY:
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
             case CAN_PLAY_NO_EDIT:
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
             case CAN_PLAY_AND_EDIT:
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(true);
-                songPopUp.getMenu().findItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(true);
+                songPopUp.getMenu().getItem(2).setVisible(true);
                 break;
             case NO_EDIT_NO_PLAY:
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(false);
-                songPopUp.getMenu().findItem(0).setVisible(false);
+                songPopUp.getMenu().getItem(0).setVisible(true);
+                songPopUp.getMenu().getItem(1).setVisible(false);
+                songPopUp.getMenu().getItem(2).setVisible(false);
                 break;
         }
 

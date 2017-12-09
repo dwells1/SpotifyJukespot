@@ -8,20 +8,29 @@ import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
 import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
 
+import android.*;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,18 +38,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class Login extends Activity{
+public class Login extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
     private Button bRegLogin;
     private EditText edUsername;
     private EditText edPassword;
     private TextView newMemberText;
+    private ProgressBar loading;
 
     private User user;
     private static final String TAG = Login.class.getSimpleName();
-    private static final String loginUrl = "http://easel2.fulgentcorp.com:8081/";
     private Logging log;
     private ServicesGateway gateway;
-    private BroadcastReceiver broadcastReceiver;
+    private Loading load;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,26 +59,25 @@ public class Login extends Activity{
         setContentView(R.layout.activity_login);
         initAllLayoutInteractions();
         log = new Logging();
-
-        if(!runtime_permissions()){
-//            Intent in = new Intent(this,LocationService.class);
-//            startService(in);
-            Intent i = new Intent(this,LocationIntentServices.class);
-            startService(i);
-        }
+        load = new Loading(this);
 
     }
 
     public void initAllLayoutInteractions(){
-        bRegLogin = findViewById(R.id.bRegLogin);
+        bRegLogin = (Button)findViewById(R.id.bRegLogin);
         edUsername = (EditText) findViewById(R.id.edRegUsername);
         edPassword = (EditText) findViewById(R.id.edRegPassword);
         bRegLogin = (Button) findViewById(R.id.bRegLogin);
-        newMemberText = findViewById(R.id.newMemberText);
-
+        newMemberText = (TextView)findViewById(R.id.newMemberText);
+        loading = (ProgressBar)findViewById(R.id.loading);
     }
 
     public void onRegLoginClicked(View view){
+//        if(!runtime_permissions()){
+//            Intent i = new Intent(this,LocationIntentServices.class);
+//            startService(i);
+//        }
+        runtime_permissions();
         log.logMessage(TAG,"LOGIN REG PRESSED");
         String UserName = edUsername.getText().toString();
         String Password = edPassword.getText().toString();
@@ -81,6 +89,7 @@ public class Login extends Activity{
             log.logMessageWithToast(this ,TAG,"Username or Password is empty");
 
         }else{
+            setVisibility("LOADING");
             gateway.setListener(new ServiceGatewayListener() {
                 @Override
                 public void onSuccess() {
@@ -92,7 +101,7 @@ public class Login extends Activity{
                 }
                 @Override
                 public  void onError(){
-
+                    setVisibility("");
                 }
             });
             gateway.login(this,UserName,Password);
@@ -104,7 +113,28 @@ public class Login extends Activity{
         startNewUser();
     }
 
+    private void setVisibility(String visibility){
+        if(visibility.equals("LOADING")){
+            ArrayList text = new ArrayList<TextView>();
+            ArrayList buttons = new ArrayList<Button>();
+            text.add(edUsername);
+            text.add(edPassword);
+            buttons.add(bRegLogin);
+            log.logMessage(TAG,"buttons " + findViewById(R.id.bRegLogin));
+            load.startLoading(this,loading,text,buttons);
+        }
+        else{
+            ArrayList text = new ArrayList<TextView>();
+            ArrayList buttons = new ArrayList<Button>();
+            text.add(edUsername);
+            text.add(edPassword);
+            buttons.add(bRegLogin);
+            load.finishLoading(this,loading,text,buttons);
+        }
+    }
+
     public void startJukeboxOptions(){
+        loading.setVisibility(View.GONE);
         Intent jukeboxOptionsIntent = new Intent(this, JukeboxUserOptions.class);
         startActivity(jukeboxOptionsIntent);
         finish();
@@ -125,21 +155,48 @@ public class Login extends Activity{
 //        }
     }
 
-    private boolean runtime_permissions() {
-        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+    private void runtime_permissions() {
+//        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+//
+//            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+//                    100);
+//            return true;
+//        }
+//        return false;
+        // Here, thisActivity is the current activity
+        log.logMessage(TAG,"*****PERMISSIONS*****");
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},100);
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-            return true;
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        100);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
         }
-        return false;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == 100){
-            if( grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+            if( grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Intent i = new Intent(this,LocationIntentServices.class);
                 startService(i);
             }else {

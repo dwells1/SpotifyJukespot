@@ -53,6 +53,7 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
     private ServicesGateway gateway;
 
     private static final String TAG = JukeboxCreationOptions.class.getSimpleName();
+    private String jsonForJoining;
     private String EXTRA_TOKEN = "EXTRA_TOKEN";
     private String TRANSACTION_ID = "TRANSACTION_ID";
     private String CHANNEL = "CHANNEL";
@@ -229,6 +230,8 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
                         tranId = jboxes.getTransaction_id();
                         log.logMessage(TAG, "Playlist Name Grabbed " + jboxes.getPlaylist_info().getPlaylist_name());
                         log.logMessage(TAG,"Channel Grabbed in Creation:" + channel);
+                        log.logMessage(TAG,"Transaction ID: " + tranId);
+                        log.logMessage(TAG,"JSON MSG: " + jsonForJoining);
 
                     }
                 }
@@ -247,16 +250,14 @@ public class JukeboxCreationOptions extends AppCompatActivity implements Adapter
     }
 
     public void startMainActivity(Integer transactionId, String channel){
+        //gateway.joinJukebox(this, "{\"transaction_id\":"+ transactionId + "}");
         log.logMessage(TAG, "IN START MAIN ACTIVITY");
         Intent intent = MainActivity.createIntent(this);
         intent.putExtra(EXTRA_TOKEN, accessToken);
-        intent.putExtra(TRANSACTION_ID,-1);
+        intent.putExtra(TRANSACTION_ID,transactionId);
         intent.putExtra(CHANNEL,channel);
         startActivity(intent);
         finish();
     }
-
-    /*TODO: Maybe add something that tells the user what things do?*/
-
 
 }

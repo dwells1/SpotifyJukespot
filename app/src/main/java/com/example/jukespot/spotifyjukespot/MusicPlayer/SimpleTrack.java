@@ -1,10 +1,12 @@
 package com.example.jukespot.spotifyjukespot.MusicPlayer;
 
+import java.io.Serializable;
+
 /**
  * Created by linos on 10/27/2017.
  */
 
-public class SimpleTrack {
+public class SimpleTrack implements Serializable{
     public String song_name;
     public String artist;
     public String uri;

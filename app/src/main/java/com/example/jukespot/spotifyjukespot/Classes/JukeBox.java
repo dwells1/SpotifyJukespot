@@ -2,6 +2,7 @@ package com.example.jukespot.spotifyjukespot.Classes;
 
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,9 +10,9 @@ import java.util.List;
  * Created by Alex on 9/20/2017.
  */
 
-public class JukeBox {
+public class JukeBox implements Serializable{
     private String playlist_name ="";
-    private String password ="";
+    private String password = "";
     private Boolean isQueueEditable ;
     private Boolean isPlayAutomatic ;
     private Double latitude;
@@ -33,6 +34,7 @@ public class JukeBox {
         this.max_distance = max_distance;
         this.isQueueEditable = isQueueEditable;
         this.isPlayAutomatic = isPlayAutomatic;
+        this.password = "";
     }
 
     public Boolean hasPassword(){

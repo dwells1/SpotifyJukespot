@@ -38,9 +38,15 @@ public class User {
     public void setTypeOfUser(UserType typeOfUser) {
         this.typeOfUser = typeOfUser;
     }
+
     public void setUserPermissions(UserPermissions userPermissions){
         this.userPermissions = userPermissions;
     }
+
+    public UserPermissions getUserPermissions(){
+        return userPermissions;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -59,9 +65,7 @@ public class User {
 
         return userName;
     }
-    public UserPermissions getUserPermissions(){
-        return userPermissions;
-    }
+
     public String getSessionToken() {
         return sessionToken;
     }

@@ -26,7 +26,6 @@ import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
 import com.example.jukespot.spotifyjukespot.ResultListScrollListener;
 import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
-import com.google.gson.Gson;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -189,21 +188,15 @@ public class SearchFragment extends Fragment implements Search.View{
                 String itemChosen = item.getTitle().toString();
                 switch(itemChosen){
                     case "Add to Queue":
-                        if(musicPlayer.getQueue().isEmpty()){
-                            musicPlayer.queueAtPosition(0,trackConverted);
-                            //gateway.addSongToPlaylist(getActivity(),trackConverted);
-                            //musicPlayer.play(trackChosenInSearch);
-                        }else{
-                            musicPlayer.queue(trackConverted);
-                            //gateway.addSongToPlaylist(getActivity(),trackConverted);
-                        }
-
+                        ((MainActivity)getActivity()).sendAddSongToService(trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
                         break;
                     case "Play Now":
-                        musicPlayer.queueAtPosition(0, trackConverted);
-                        //gateway.addSongToPlaylist(getActivity(),trackConverted);
+                        /*TODO: Needs to be added to the webservice so it is bumped up to the begining of the queue*/
+                        // musicPlayer.queueAtPosition(0, trackConverted);
+                        ((MainActivity)getActivity()).sendPlaySongToService(trackConverted);
                         log.logMessage(TAG, "Pressed in Popup:" + item.getTitle() + " for " + trackName);
+                       //log.logMessage(TAG,"SEARCH PLAY NOW ERROR: HAS NOT BEEN IMPLEMENTED IN SERVICE CURRENTLY DOES NOTHING!");
                         break;
                     default:
                         break;

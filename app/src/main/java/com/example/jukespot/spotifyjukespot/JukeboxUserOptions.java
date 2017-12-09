@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
@@ -39,7 +40,9 @@ public class JukeboxUserOptions extends Activity {
     private User user;
     boolean isConfirmed;
     private Intent i;
-    Logging log;
+    private Logging log;
+    private Loading load;
+    private ArrayList<Button> buttons;
     private static final String TAG = JukeboxUserOptions.class.getSimpleName();
 
     @SuppressWarnings("SpellCheckingInspection")
@@ -61,9 +64,9 @@ public class JukeboxUserOptions extends Activity {
         gateway = ServicesGateway.getInstance();
 
         rfit = RetrofitClient.getInstance();
-
-        initJukeboxButtons();
+        load = new Loading(this);
         setContentView(R.layout.activity_jukebox_user_options);
+        initJukeboxButtons();
 
         if(!runtime_permissions()){
             i = new Intent(this,LocationIntentServices.class);
@@ -78,6 +81,8 @@ public class JukeboxUserOptions extends Activity {
         btnCreateJukebox = (Button) findViewById(R.id.bStartJukebox);
         btnJoinJukebox = (Button) findViewById(R.id.bJoinJukebox);
         btnLogoutJukebox = (Button) findViewById(R.id.bLogout);
+        log.logMessage(TAG,"buttons " + btnCreateJukebox + btnJoinJukebox + btnLogoutJukebox);
+        buttons = new ArrayList<Button>();
     }
 
     public void getUser(final String token){
@@ -103,7 +108,12 @@ public class JukeboxUserOptions extends Activity {
     }
 
     public void onStartNewJukeboxClicked(View view){
+        buttons.add(btnCreateJukebox);
+        buttons.add(btnJoinJukebox);
+        buttons.add(btnLogoutJukebox);
         log.logMessage(TAG,"START NEW PRESSED");
+
+        load.startLoading(this,null,null,buttons);
         user.setTypeOfUser(UserType.CREATOR);
         user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
         openSpotifyLogin();
@@ -203,11 +213,13 @@ public class JukeboxUserOptions extends Activity {
                 // Auth flow returned an error
                 case ERROR:
                     log.logError(this,TAG,"Auth error: " + response.getError());
+                    load.finishLoading(this,null,null,buttons);
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
                     log.logError(this,TAG,"Auth result: " + response.getType());
+                    load.finishLoading(this,null,null,buttons);
             }
         }
     } //end onActivity

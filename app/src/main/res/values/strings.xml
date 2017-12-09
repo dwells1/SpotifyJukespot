@@ -4,6 +4,7 @@
     <string name="search">Search</string>
     <string name="cover_art_description">Cover art</string>
     <string name="web_service_url">http://easel2.fulgentcorp.com:8081/</string>
+    <string name="playlist_started_message">Playlist is already started</string>
     <string name="search_hint">Search tracks</string>
     <string name="title_activity_new_jukebox_options">newJukeboxOptionsActivity</string>
 

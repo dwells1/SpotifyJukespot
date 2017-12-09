@@ -2,11 +2,13 @@ package com.example.jukespot.spotifyjukespot.Classes;
 
 import com.example.jukespot.spotifyjukespot.JoinJukebox;
 
+import java.io.Serializable;
+
 /**
  * Created by Dominique on 11/5/2017.
  */
 
-public class JukeBoxResponse {
+public class JukeBoxResponse implements Serializable{
     private Integer transaction_id;
     private Double latitude;
     private Double longitude;

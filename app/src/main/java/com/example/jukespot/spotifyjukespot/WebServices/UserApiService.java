@@ -46,4 +46,12 @@ public interface UserApiService {
     @GET("leavePlaylist")
     Call<LoginResponse> leavePlaylist(@Query("session_token") String token,
                                       @Query("json") String json);
+
+    @GET("playSongNow")
+    Call<LoginResponse> playSongNow(@Query("session_token") String token,
+                                      @Query("json") String json);
+
+    @GET("removeSongFromPlaylist")
+    Call<LoginResponse> removeSongFromPlaylist(@Query("session_token") String token,
+                                    @Query("json") String json);
 }

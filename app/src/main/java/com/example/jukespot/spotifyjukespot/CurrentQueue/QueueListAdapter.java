@@ -1,8 +1,10 @@
 package com.example.jukespot.spotifyjukespot.CurrentQueue;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class QueueListAdapter extends ArrayAdapter<SimpleTrack>  {
     private List<SimpleTrack> trackList;
     private String imageUrl;
     private ImageView albumArtView;
+    Bitmap albumCover;
 
 
     public QueueListAdapter(Context mContext, List<SimpleTrack> trackList){
@@ -51,14 +54,43 @@ public class QueueListAdapter extends ArrayAdapter<SimpleTrack>  {
         trackSubtitle.setText(trackList.get(position).artist);
         imageUrl = trackList.get(position).album_image_link;
         Bitmap albumCoverBitmap = downloadImage();
-        if(albumCoverBitmap != null)
-            albumArtView.setImageBitmap(albumCoverBitmap);
+        //if(albumCoverBitmap != null)
+          //  albumArtView.setImageBitmap(albumCoverBitmap);
         return rowView;
     }
 
+
+    /*TODO: FIX IMAGE DOWNLOAD RIGHT NOW ONLY THE LAST THING IN THE QUEUE GETS THEIR ALBUM IMAGE*/
+    @SuppressLint("StaticFieldLeak")
     public Bitmap downloadImage(){
-        Bitmap albumCover = null;
-        try{
+        new AsyncTask<Void,Void,Void>(){
+
+            @Override
+            protected Void doInBackground(Void...params) {
+
+                try{
+                    URL coverImgUrl = new URL(imageUrl);
+                    InputStream in = coverImgUrl.openStream();
+                    albumCover = BitmapFactory.decodeStream(in);
+                }catch(MalformedURLException e){
+                    log.logErrorNoToast(TAG,"Not A valid URL For Album Cover Image");
+                }catch(IOException e){
+                    log.logErrorNoToast(TAG,"Not A valid Connection For Album Cover Image");
+                }
+                return null;
+            }
+
+
+            @Override
+            protected void onPostExecute(Void result){
+                albumArtView.setImageBitmap(albumCover);
+            }
+        }.execute();
+
+
+        //This used to work but when adding song from the webservice it nows throws a connection error cause by running the
+        //image url in the main thread....
+        /*try{
             URL coverImgUrl = new URL(imageUrl);
             InputStream in = coverImgUrl.openStream();
             albumCover = BitmapFactory.decodeStream(in);
@@ -67,6 +99,8 @@ public class QueueListAdapter extends ArrayAdapter<SimpleTrack>  {
         }catch(IOException e){
             log.logErrorNoToast(TAG,"Not A valid Connection For Album Cover Image");
         }
+*/
+
         if(albumCover !=null)
             return albumCover;
         else
