@@ -118,6 +118,7 @@ public class MusicPlayer implements MusicPlayerInterface
         }else{
             currentQueue.add(track);
         }
+        updateCurrentGUI();
         printCurrentQueue();
     }
 
@@ -133,6 +134,7 @@ public class MusicPlayer implements MusicPlayerInterface
         if(position == 0 ) {
             play(trackToQueue);
         }
+        updateCurrentGUI();
         log.logMessage(TAG,"Add " + trackToQueue.song_name + " at Position : " + position);
         printCurrentQueue();
     }
@@ -153,6 +155,7 @@ public class MusicPlayer implements MusicPlayerInterface
             play(currentQueue.get(1));
         }
         currentQueue.remove(toRemove);
+        updateCurrentGUI();
         log.logMessage(TAG,"QUEUE AFTER REMOVAL:");
         printCurrentQueue();
     }
@@ -199,7 +202,6 @@ public class MusicPlayer implements MusicPlayerInterface
         for(int ndx : indexOfRemovedSongs){
             removeFromQueue(currentQueue.get(ndx));
         }
-       // updateCurrentGUI();
     }
 
 

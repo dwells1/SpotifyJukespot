@@ -561,12 +561,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             sendRemoveSongToService(trackChosen);
         }else if(whatToDo == ChangeType.UPDATE_GUI){
             if(currentFragmentView.equals(ViewTypeFragments.CURRENTLY_PLAYING)){
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    log.logMessage(TAG, "unable to sleep");
-//                }
                 Fragment current = new CurrentlyPlayingFragment();
+                openChosenFrag(current);
+            }else if (currentFragmentView.equals(ViewTypeFragments.CURRENT_QUEUE)){
+                log.logMessage(TAG,"UPDATE CURRENT QUEUE FRAG!");
+                Fragment current = new CurrentQueueFragment();
                 openChosenFrag(current);
             }
         }
