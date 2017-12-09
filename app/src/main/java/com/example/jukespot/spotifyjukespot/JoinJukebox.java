@@ -52,6 +52,9 @@ public class JoinJukebox extends Activity {
     private boolean isConfirmed = true;
     private String passwordForJuke;
 
+    private Loading load;
+    private Context con = this;
+
     private static final String TAG = JoinJukebox.class.getSimpleName();
 
     @Override
@@ -63,6 +66,7 @@ public class JoinJukebox extends Activity {
         authToken = extras.getString("EXTRA_TOKEN");
         user = User.getInstance();
         user.setTypeOfUser(UserType.SUBSCRIBER);
+        load = new Loading(this);
         jukebox_array_list = new ArrayList<JukeBoxResponse>();
         gateway = ServicesGateway.getInstance();
         gateway.setListener(new ServiceGatewayListener() {
@@ -120,6 +124,7 @@ public class JoinJukebox extends Activity {
                     }else{
                         log.logMessage(TAG, "NO PASSWORD Required");
                         log.logMessage(TAG, messageSelected.getLocation_fields().toString());
+                        load.startLoading(con,null,null);
                         joinJukebox(messageSelected.getTransaction_id());
                     }
                 }
@@ -188,7 +193,7 @@ public class JoinJukebox extends Activity {
 
             @Override
             public void onError() {
-
+                load.finishLoading(con,null,null);
             }
         });
         gateway.joinJukebox(this, json);

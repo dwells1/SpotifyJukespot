@@ -1,21 +1,17 @@
 package com.example.jukespot.spotifyjukespot.MusicPlayer;
 
-import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
-import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
+import com.example.jukespot.spotifyjukespot.Enums.ChangeType;
 import com.example.jukespot.spotifyjukespot.CurrentQueue.CurrentQueueFragment;
 import com.example.jukespot.spotifyjukespot.CurrentlyPlaying.CurrentlyPlayingFragment;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MainActivity;
-import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
-import com.google.gson.Gson;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
@@ -56,7 +52,6 @@ public class MusicPlayer implements MusicPlayerInterface
     public MusicPlayer(){
         currentQueue = new ArrayList<SimpleTrack>();
         previousTrackQueue = new ArrayList<SimpleTrack>();
-        log.logMessage(TAG,"CurrentQueue " + currentQueue);
     }
 
     public List<SimpleTrack> currentQueue = new ArrayList<SimpleTrack>();
@@ -110,6 +105,8 @@ public class MusicPlayer implements MusicPlayerInterface
             setIsPaused(false);
         }else {
             log.logMessage(TAG, "SUBS CANNOT PLAY ON PHONE");
+            setIsPaused(true);
+            delegate.updateGUI(ChangeType.UPDATE_GUI);
         }
         log.logMessage(TAG,"Song Currently Playing : " + trackToPlay.song_name);
     }
@@ -146,7 +143,9 @@ public class MusicPlayer implements MusicPlayerInterface
 
     public void setCurrentQueue(List<SimpleTrack> queue) {
         this.currentQueue = queue;
-        play(currentQueue.get(0));
+        if(!currentQueue.isEmpty()) {
+            play(currentQueue.get(0));
+        }
     }
 
     public void removeFromQueue(SimpleTrack toRemove){

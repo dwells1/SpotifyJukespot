@@ -121,7 +121,7 @@ public class Login extends AppCompatActivity implements ActivityCompat.OnRequest
             text.add(edPassword);
             buttons.add(bRegLogin);
             log.logMessage(TAG,"buttons " + findViewById(R.id.bRegLogin));
-            load.startLoading(this,loading,text,buttons);
+            load.startLoading(this,text,buttons);
         }
         else{
             ArrayList text = new ArrayList<TextView>();
@@ -129,7 +129,7 @@ public class Login extends AppCompatActivity implements ActivityCompat.OnRequest
             text.add(edUsername);
             text.add(edPassword);
             buttons.add(bRegLogin);
-            load.finishLoading(this,loading,text,buttons);
+            load.finishLoading(this,text,buttons);
         }
     }
 

@@ -121,7 +121,7 @@ public class ServicesGateway {
         Gson gson = new Gson();
         String json = gson.toJson(currentSong);
         log.logMessage(TAG,"track:" + json);
-        json =  "{\"transaction_id\":"+ transaction_id + ","+json.substring(1);
+        json =  "{\"transaction_id\":"+ transId + ","+json.substring(1);
         log.logMessage(TAG,"track w/ trans id: " + json);
         Call<LoginResponse> call = client.addSongToPlaylist(user.getSessionToken(), json);
         call.enqueue(new Callback<LoginResponse>() {

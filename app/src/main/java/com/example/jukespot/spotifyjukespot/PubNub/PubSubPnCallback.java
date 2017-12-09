@@ -4,28 +4,7 @@ package com.example.jukespot.spotifyjukespot.PubNub;
  * Created by rialt on 11/16/2017.
  */
 
-import android.util.Log;
-
-import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MainActivity;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayerDelegate;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.reflect.TypeToken;
-
-import com.example.jukespot.spotifyjukespot.MainActivity;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayerDelegate;
-import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.reflect.TypeToken;
-
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 
@@ -82,8 +61,12 @@ public class PubSubPnCallback extends SubscribeCallback {
              //if message is to add song to queue we convert it to song and add it
              if(jsonMap.get("message_type").equals("add_song")){
                  convertedTrack = convertToSimpleTrack(jsonMap);
+                 log.logMessage(TAG,"Add song " +convertedTrack.song_name+ " Current queue before");
+                 for(SimpleTrack s : musicPlayer.getCurrentQueue()){
+                     log.logMessage(TAG,s.song_name);
+                 }
                  musicPlayer.queue(convertedTrack);
-                 musicPlayer.printCurrentQueue();
+                 //musicPlayer.printCurrentQueue();
              }else if (jsonMap.get("message_type").equals("play_song")){
                  convertedTrack = convertToSimpleTrack(jsonMap);
                  musicPlayer.queueAtPosition(0,convertedTrack);

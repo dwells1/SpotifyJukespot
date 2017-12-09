@@ -46,9 +46,8 @@ public class Loading {
         progress.setVisibility(View.INVISIBLE);
     }
 
-    public <T> void startLoading(Context con , ProgressBar loading, ArrayList<TextView> nonVisibleText, ArrayList<Button> nonVisibleButton){
+    public <T> void startLoading(Context con , ArrayList<TextView> nonVisibleText, ArrayList<Button> nonVisibleButton){
         this.con = con;
-        log.logMessage(TAG,"Buttons array " + nonVisibleButton.toString());
 //        if(loading != null) {
 //            loading.setVisibility(View.VISIBLE);
 //            log.logMessage(TAG, "Loading set visible");
@@ -67,7 +66,7 @@ public class Loading {
 
     }
 
-    public void finishLoading(Context con , ProgressBar loading, ArrayList<TextView> nonVisibleText, ArrayList<Button> nonVisibleButton){
+    public void finishLoading(Context con, ArrayList<TextView> nonVisibleText, ArrayList<Button> nonVisibleButton){
         this.con = con;
 //        if(loading != null) {
 //            loading.setVisibility(View.INVISIBLE);

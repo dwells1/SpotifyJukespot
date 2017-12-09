@@ -1,10 +1,13 @@
 package com.example.jukespot.spotifyjukespot.CurrentlyPlaying;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,16 +18,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.jukespot.spotifyjukespot.Classes.User;
+import com.example.jukespot.spotifyjukespot.Enums.ChangeType;
 import com.example.jukespot.spotifyjukespot.Enums.UserType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
+import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,7 +40,7 @@ import java.net.URL;
  * Use the {@link CurrentlyPlayingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CurrentlyPlayingFragment extends Fragment implements View.OnClickListener {
+public class CurrentlyPlayingFragment extends Fragment implements View.OnClickListener, Observer {
 
     private static final String TAG = CurrentlyPlayingFragment.class.getSimpleName();
 
@@ -59,7 +65,6 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
 
     private View view;
 
-
     public CurrentlyPlayingFragment() {
         // Required empty public constructor
     }
@@ -74,6 +79,7 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         super.onCreate(savedInstanceState);
         log = new Logging();
         user = User.getInstance();
+        musicPlayer = musicPlayer.getInstance();
     }
 
     @Override
@@ -86,14 +92,17 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         initAlbumCover();
         validateUserPermissions();
         try {
-            musicPlayer = ((MainActivity) getActivity()).getMusicPlayer();
             isSongPlaying = musicPlayer.isPlaying();
             isSongPaused = musicPlayer.getIsPaused();
 
             if(isSongPlaying || isSongPaused){
-                name = musicPlayer.getCurrentTrack().name;
-                artist = musicPlayer.getCurrentTrack().artistName;
-                urlString = musicPlayer.getCurrentTrack().albumCoverWebUrl;
+                log.logMessage(TAG,"CurrentQueue is");
+                for(SimpleTrack s: musicPlayer.getCurrentQueue()){
+                    log.logMessage(TAG,s.song_name);
+                }
+                name = musicPlayer.getCurrentTrackNotFromPlayer().song_name;
+                artist = musicPlayer.getCurrentTrackNotFromPlayer().artist;
+                urlString = musicPlayer.getCurrentTrackNotFromPlayer().album_image_link;
                 updateSongInfo();
             }else{
                 updateSongInfo();
@@ -105,6 +114,8 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         return view;
     }
 
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
+    @SuppressLint("StaticFieldLeak")
     public void setAlbumImage(){
 
         new AsyncTask<Void,Void,Void>(){
@@ -133,7 +144,6 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     }
 
     public void initButtons(){
-        /*TODO: Subscriber Types do not need Pause Play EVER*/
         btnPlayPause = view.findViewById(R.id.btnPlayPauseSong);
         btnPlayPause.setOnClickListener(this);
 
@@ -171,6 +181,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 permissionsHeader.setText("You DO NOT have permission to use player");
                 break;
         }
+
+        /*Subscribers cannot pause / play song only creator has access to that*/
+        if(user.getTypeOfUser() == UserType.SUBSCRIBER)
+            disablePausePlayButton();
+
     }
     public void disableAllButtons(){
         btnPlayPause.setAlpha(.5f);
@@ -185,13 +200,16 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
     public void showButtons(){
         btnPlayPause.setVisibility(View.VISIBLE);
         btnNext.setVisibility(View.VISIBLE);
-        btnPrev.setVisibility(View.VISIBLE);
+        btnPrev.setVisibility(View.INVISIBLE);
     }
     public void hideButtons(){
         btnPlayPause.setVisibility(View.INVISIBLE);
-        //btnPause.setVisibility(View.INVISIBLE);
         btnNext.setVisibility(View.INVISIBLE);
         btnPrev.setVisibility(View.INVISIBLE);
+    }
+    public void disablePausePlayButton(){
+        btnPlayPause.setAlpha(.5f);
+        btnPlayPause.setClickable(false);
     }
     @Override
     public void onClick(View view){
@@ -199,41 +217,43 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         checkViewButtons(view);
     }
     public void checkViewButtons(View view){
+
         isSongPlaying = musicPlayer.isPlaying();
-        // isSongPaused = musicPlayer.getIsPaused();
+        isSongPaused = musicPlayer.getIsPaused();
         switch(view.getId()){
             case R.id.btnPlayPauseSong:
                 if(!isSongPlaying && isSongPaused){
                     musicPlayer.resume();
                     btnPlayPause.setText("Pause");
-                    isSongPaused = false;
-                    musicPlayer.setIsPaused(isSongPaused);
+                    // isSongPaused = false;
+                    //musicPlayer.setIsPaused(isSongPaused);
                 }
                 else if(isSongPlaying && !isSongPaused){
                     musicPlayer.pause();
                     btnPlayPause.setText("Play");
-                    isSongPaused = true;
-                    musicPlayer.setIsPaused(isSongPaused);
+                    //isSongPaused = true;
+                    //musicPlayer.setIsPaused(isSongPaused);
                 }
                 break;
             case R.id.btnNextSong:
-                // musicPlayer.next();
-                try{
-                    name = musicPlayer.getNextTrack().song_name;
-                    artist = musicPlayer.getNextTrack().artist;
-                    urlString = musicPlayer.getNextTrack().album_image_link;
-                    log.logMessage(TAG,"NEXT SONG NAME: " + name + " by " + artist);
-                    updateSongInfo();
-                    isSongPaused = false;
-                    musicPlayer.setIsPaused(isSongPaused);
-                    btnPlayPause.setText("Pause");
-                    musicPlayer.next();
+                /*TODO: CHECK QUEUE SIZE BEFORE CALLING NEXT BECAUSE IT WILL REMOVE A SONG FROM THE WEBSERVIC BEFORE CHECKING IF ITS THE LAST ONE IN THE QUEUE*/
+                try {
+                    if(musicPlayer.getCurrentQueue().size() > 1){
+                        musicPlayer.next();
+                    }else if(musicPlayer.getCurrentQueue().size() == 1){
+                        log.logMessageWithToast(getActivity(),TAG,"This is the last song on the queue");
+                    }else if(musicPlayer.getCurrentQueue().size() <= 0){
+                        updateSongInfo();
+                    }
+
                 }catch(NullPointerException | IndexOutOfBoundsException noNextTrack){
-                    noNextTrack.printStackTrace();
-                    log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
+                    // noNextTrack.printStackTrace();
+                    // log.logMessageWithToast(getActivity(),TAG,"No Tracks left in Current Queue!");
+                    log.logError(getActivity(), TAG, "Array For Current Queue is not valid");
                     updateSongInfo();
                     break;
                 }
+
                 break;
 
             case R.id.btnPrevSong:
@@ -254,27 +274,39 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                 }
                 break;
         }
-        ((MainActivity) getActivity()).getMusicPlayer();
+        //((MainActivity) getActivity()).getMusicPlayer();
     }
 
     public void updateSongInfo(){
+        SimpleTrack track = musicPlayer.getCurrentTrackNotFromPlayer();
         isSongPlaying = musicPlayer.isPlaying();
-        isSongPaused =musicPlayer.getIsPaused();
+        isSongPaused = musicPlayer.getIsPaused();
 
         if(isSongPlaying || isSongPaused){
-            txtSongTitle.setText(name);
-            txtSongArtist.setText(artist);
+            txtSongTitle.setText(track.song_name);
+            txtSongArtist.setText(track.artist);
+            urlString = track.album_image_link;
             setAlbumImage();
             if(isSongPaused)
                 btnPlayPause.setText("Play");
             showButtons();
 
         }else{
-            txtSongTitle.setText("NO SONGS CURRENTLY PLAYING");
+            //txtSongTitle.setText(" SONGS CURRENTLY PLAYING");
+            txtSongTitle.setVisibility(View.INVISIBLE);
             txtSongArtist.setVisibility(View.INVISIBLE);
             albumCoverView.setVisibility(View.INVISIBLE);
             hideButtons();
 
+        }
+
+
+        if(musicPlayer.getCurrentQueue().size() <= 0 ){
+            txtSongTitle.setVisibility(View.VISIBLE);
+            txtSongTitle.setText("No Songs in Queue");
+            txtSongArtist.setVisibility(View.INVISIBLE);
+            albumCoverView.setVisibility(View.INVISIBLE);
+            hideButtons();
         }
     }
     @Override
@@ -300,6 +332,22 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         mListener = null;
     }
 
+    @Override
+    public void update(Observable observable, Object change) {
+        log.logMessage(TAG, "CURRENTLY PLAYING RECIEVES UPDATE!");
+        ChangeType changeType = (ChangeType) change;
+
+        if(changeType == ChangeType.UPDATE_GUI) {
+            SimpleTrack current = musicPlayer.getCurrentTrackNotFromPlayer();
+            log.logMessage(TAG,"IN CURRENTLY PLAYING UPDATE SONG : " + current.song_name );
+            name = current.song_name;
+            artist = current.artist;
+            urlString = current.album_image_link;
+        }
+
+    }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -314,4 +362,11 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
         // TODO: Update argument type and song_name
         void onFragmentInteraction(Uri uri);
     }
+
+    @Override
+    public void onDestroy(){
+        musicPlayer.removeObserverFragment(this);
+        super.onDestroy();
+    }
 }
+

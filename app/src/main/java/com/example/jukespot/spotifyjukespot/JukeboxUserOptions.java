@@ -113,7 +113,7 @@ public class JukeboxUserOptions extends Activity {
         buttons.add(btnLogoutJukebox);
         log.logMessage(TAG,"START NEW PRESSED");
 
-        load.startLoading(this,null,null,buttons);
+        load.startLoading(this,null,buttons);
         user.setTypeOfUser(UserType.CREATOR);
         user.setUserPermissions(UserPermissions.CAN_PLAY_AND_EDIT);
         openSpotifyLogin();
@@ -213,13 +213,13 @@ public class JukeboxUserOptions extends Activity {
                 // Auth flow returned an error
                 case ERROR:
                     log.logError(this,TAG,"Auth error: " + response.getError());
-                    load.finishLoading(this,null,null,buttons);
+                    load.finishLoading(this,null,buttons);
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
                     log.logError(this,TAG,"Auth result: " + response.getType());
-                    load.finishLoading(this,null,null,buttons);
+                    load.finishLoading(this,null,buttons);
             }
         }
     } //end onActivity

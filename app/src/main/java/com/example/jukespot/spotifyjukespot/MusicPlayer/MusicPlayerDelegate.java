@@ -1,8 +1,7 @@
 package com.example.jukespot.spotifyjukespot.MusicPlayer;
 
-import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
+import com.example.jukespot.spotifyjukespot.Enums.ChangeType;
 import com.example.jukespot.spotifyjukespot.Logging.Logging;
-import com.example.jukespot.spotifyjukespot.MainActivity;
 import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
 
 import java.util.Observable;

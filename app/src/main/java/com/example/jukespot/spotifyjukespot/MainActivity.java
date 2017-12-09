@@ -31,7 +31,7 @@ package com.example.jukespot.spotifyjukespot;
 
         import com.example.jukespot.spotifyjukespot.Classes.JukeBoxResponse;
         import com.example.jukespot.spotifyjukespot.Classes.User;
-        import com.example.jukespot.spotifyjukespot.CurrentQueue.ChangeType;
+        import com.example.jukespot.spotifyjukespot.Enums.ChangeType;
         import com.example.jukespot.spotifyjukespot.Enums.Discoverable;
         import com.example.jukespot.spotifyjukespot.Enums.UserType;
         import com.example.jukespot.spotifyjukespot.Classes.ViewTypeFragments;
@@ -41,15 +41,11 @@ package com.example.jukespot.spotifyjukespot;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayerDelegate;
         import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
-        import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
-        import com.example.jukespot.spotifyjukespot.PubNub.PubNubConstants;
         import com.example.jukespot.spotifyjukespot.PubNub.PubNubService;
-        import com.example.jukespot.spotifyjukespot.PubNub.PubSubPnCallback;
         import com.example.jukespot.spotifyjukespot.Search.SearchFragment;
         import com.example.jukespot.spotifyjukespot.WebServices.ServiceGatewayListener;
         import com.example.jukespot.spotifyjukespot.WebServices.ServicesGateway;
         import com.google.android.gms.common.api.GoogleApiClient;
-        import com.google.android.gms.common.api.Result;
         import com.google.android.gms.common.api.ResultCallback;
         import com.google.android.gms.common.api.Status;
         import com.google.android.gms.location.FusedLocationProviderClient;
@@ -61,12 +57,7 @@ package com.example.jukespot.spotifyjukespot;
         import com.google.android.gms.location.LocationRequest;
         import com.google.android.gms.location.LocationServices;
         import com.spotify.sdk.android.player.Config;
-        import com.pubnub.api.PNConfiguration;
 
-        import com.pubnub.api.PubNub;
-
-        import java.io.Serializable;
-        import java.util.Arrays;
         import java.util.List;
         import java.util.Observable;
         import java.util.Observer;
@@ -92,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
     private ListView mDrawerList;
     private ArrayAdapter<String> menuAdaptor;
 
-    private ViewTypeFragments currentFragmentView;
+    private ViewTypeFragments currentFragmentView = ViewTypeFragments.SEARCH_VIEW;
     private String token;
     private Integer transaction_id;
     private String channel;
@@ -158,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             @Override
             public void onConnected(@Nullable Bundle bundle) {
                 log.logMessage(TAG,"API Connection sucessful");
-                startLocatiionMonitoring();
-                startGeofenceMonitoring();
+                //startLocatiionMonitoring();
+                //startGeofenceMonitoring();
             }
 
             @Override
@@ -169,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         }).build();
         googleClient.connect();
     }
-
 
     private void startLocatiionMonitoring(){
         try{
@@ -236,7 +226,6 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
         if(queue!=null) {
             musicPlayer.setCurrentQueue(queue);
         }
-
     }
 
     public MusicPlayer getMusicPlayer(){
@@ -507,10 +496,10 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     protected void onDestroy() {
         super.onDestroy();
-        Intent i =new Intent(this,GeoFenceService.class);
-        PendingIntent pendingIntent =PendingIntent.getService(this,0,i,PendingIntent.FLAG_UPDATE_CURRENT);
-        LocationServices.GeofencingApi.removeGeofences(googleClient,pendingIntent);
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleClient,locListener);
+        //Intent i =new Intent(this,GeoFenceService.class);
+        //PendingIntent pendingIntent =PendingIntent.getService(this,0,i,PendingIntent.FLAG_UPDATE_CURRENT);
+        //LocationServices.GeofencingApi.removeGeofences(googleClient,pendingIntent);
+        //LocationServices.FusedLocationApi.removeLocationUpdates(googleClient,locListener);
         googleClient.disconnect();
         log.logMessage(TAG,"Destroyed Called *************");
     }
@@ -564,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
 
     @Override
     public void update(Observable observable, Object o) {
+        log.logMessage(TAG,"*****Update******");
         MusicPlayerDelegate delegate = (MusicPlayerDelegate) observable;
         ChangeType whatToDo = (ChangeType) o;
         SimpleTrack trackChosen = delegate.trackChosen;
@@ -571,11 +561,11 @@ public class MainActivity extends AppCompatActivity implements SearchFragment.On
             sendRemoveSongToService(trackChosen);
         }else if(whatToDo == ChangeType.UPDATE_GUI){
             if(currentFragmentView.equals(ViewTypeFragments.CURRENTLY_PLAYING)){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    log.logMessage(TAG, "unable to sleep");
-                }
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    log.logMessage(TAG, "unable to sleep");
+//                }
                 Fragment current = new CurrentlyPlayingFragment();
                 openChosenFrag(current);
             }
