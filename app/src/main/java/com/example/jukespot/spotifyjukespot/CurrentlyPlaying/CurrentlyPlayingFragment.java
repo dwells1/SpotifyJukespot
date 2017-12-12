@@ -24,6 +24,7 @@ import com.example.jukespot.spotifyjukespot.Logging.Logging;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.MusicPlayer;
 import com.example.jukespot.spotifyjukespot.MusicPlayer.SimpleTrack;
 import com.example.jukespot.spotifyjukespot.R;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -127,14 +128,14 @@ public class CurrentlyPlayingFragment extends Fragment implements View.OnClickLi
                     URL coverImgUrl = new URL(urlString);
                     InputStream in = coverImgUrl.openStream();
                     coverImg = BitmapFactory.decodeStream(in);
+                    in.close();
                 }catch(MalformedURLException e){
                     log.logErrorNoToast(TAG,"Not A valid URL For Album Cover Image");
-                }catch(IOException e){
-                    log.logErrorNoToast(TAG,"Not A valid Connection For Album Cover Image");
+                }catch(IOException e) {
+                    log.logErrorNoToast(TAG, "Not A valid Connection For Album Cover Image");
                 }
                 return null;
             }
-
 
             @Override
             protected void onPostExecute(Void result){
